@@ -41,6 +41,29 @@ async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
+
+    const userCollection = client.db('techInsightsDB').collection('users');
+
+    // create or update user
+    app.patch('/users', async (req, res) => {
+      const user = req.body;
+      const email = user.email;
+
+      const query = { email: user.email }
+      
+      const updatedDoc = {
+        $set: {...user}
+      }
+
+      const options = { upsert: true}
+
+     const result = await userCollection.updateOne(query, updatedDoc, options)
+
+      res.send(result)
+      
+    })
+
+
     // Send a ping to confirm a successful connection
     await client.db('admin').command({ ping: 1 });
     console.log(
