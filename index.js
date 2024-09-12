@@ -45,23 +45,45 @@ async function run() {
     const userCollection = client.db('techInsightsDB').collection('users');
 
     // create or update user
-    app.patch('/users', async (req, res) => {
+    app.put('/users', async (req, res) => {
       const user = req.body;
-      const email = user.email;
 
-      const query = { email: user.email }
-      
-      const updatedDoc = {
-        $set: {...user}
+      const query = { email: user.email };
+      const options = { upsert: true };
+
+      // checking if the user exists already
+      const existingUser = await userCollection.findOne(query);
+      if (existingUser) {
+        // if existing user try to change his role
+        if (user.role === 'Requested') {
+          const result = await userCollection.updateOne(query, {
+            $set: { status: user?.status },
+          });
+          return res.send(result);
+        }
+
+        // if existing user try to buy subscription
+        if (user.subscription === 'Processing') {
+           const result = await userCollection.updateOne(query, {
+             $set: { subscription: user?.subscription },
+           });
+           return res.send(result);
+        }
+
+        return res.send({ message: 'User already exists', insertedId: null });
       }
 
-      const options = { upsert: true}
-
-     const result = await userCollection.updateOne(query, updatedDoc, options)
-
-      res.send(result)
+      // saving the user data for the first time
       
+      const updateDoc = {
+        $set: {
+          ...user
+        },
+      }
+      const result = await userCollection.updateOne(query, updateDoc, options)
+      res.send(result)
     })
+
 
 
     // Send a ping to confirm a successful connection
