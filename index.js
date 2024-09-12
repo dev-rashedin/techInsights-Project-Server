@@ -44,6 +44,22 @@ async function run() {
 
     const userCollection = client.db('techInsightsDB').collection('users');
 
+
+    // get all users
+    app.get('/users', async (req, res) => {
+      const result = await userCollection.find().toArray()
+      res.send(result)
+    })
+
+    // get specific user
+    app.get('/users/:email', async (req, res) => {
+      const email = req.params.email;
+      const query = { email: email }
+      
+      const result = await userCollection.findOne(query)
+      res.send(result)
+    })
+
     // create or update user
     app.put('/users', async (req, res) => {
       const user = req.body;
