@@ -44,6 +44,7 @@ async function run() {
     await client.connect();
 
     const userCollection = client.db('techInsightsDB').collection('users');
+    const publisherCollection = client.db('techInsightsDB').collection('publishers');
 
 
     // get all users
@@ -133,6 +134,14 @@ async function run() {
       } catch (error) {
         console.error(error)
       }
+    })
+
+    // create publisher
+    app.post('/publishers', async (req, res) => {
+      const publisherData = req.body;
+
+      const result = await publisherCollection.insertOne(publisherData)
+      return res.send(result)
     })
 
 
