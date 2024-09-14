@@ -46,7 +46,7 @@ async function run() {
 
     const userCollection = client.db('techInsightsDB').collection('users');
     const publisherCollection = client.db('techInsightsDB').collection('publishers');
-    const articlesCollection = client.db('techInsightsDB').collection('articleCollection');
+    const articleCollection = client.db('techInsightsDB').collection('articles');
 
 
     // get all users
@@ -192,12 +192,25 @@ async function run() {
 
     // get all articles
     app.get('/articles', async (req, res) => {
-     try {
-       const result = await articlesCollection.find().toArray();
-       res.send(result);
-     } catch (error) {
-     return res.send(error);
-     }
+  
+      try {
+        const result = await articleCollection.find().toArray();
+        res.send(result);  
+      } catch (error) {
+        return res.send(error.message)
+      }
+    })
+    // get single article by id
+    app.get('/articles/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)}
+  
+      try {
+        const result = await articleCollection.findOne(query)
+        res.send(result);  
+      } catch (error) {
+        return res.send(error.message)
+      }
     })
 
     app.post('/articles', async (req, res) => {
