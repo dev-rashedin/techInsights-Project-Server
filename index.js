@@ -46,7 +46,7 @@ async function run() {
 
     const userCollection = client.db('techInsightsDB').collection('users');
     const publisherCollection = client.db('techInsightsDB').collection('publishers');
-    const articleCollection = client.db('techInsightsDB').collection('articleCollection');
+    const articlesCollection = client.db('techInsightsDB').collection('articleCollection');
 
 
     // get all users
@@ -55,17 +55,21 @@ async function run() {
         const result = await userCollection.find().toArray();
         res.send(result);
       } catch (error) {
-        res.send(error)
+       return res.send(error)
       }
     })
 
     // get specific user
     app.get('/users/:email', async (req, res) => {
-      const email = req.params.email;
-      const query = { email: email }
-      
-      const result = await userCollection.findOne(query)
-      res.send(result)
+     try {
+       const email = req.params.email;
+       const query = { email: email };
+
+       const result = await userCollection.findOne(query);
+       return res.send(result);
+     } catch (error) {
+      return res.send(error)
+     }
     })
 
     // create or update user
@@ -142,7 +146,7 @@ async function run() {
          res.send(result);
         
       } catch (error) {
-          res.send(error)
+         return res.send(error)
       }
     })
 
@@ -160,8 +164,7 @@ async function run() {
         const result = await userCollection.updateOne(filter, updateDoc);
         res.send(result);
       } catch (error) {
-          const result = await publisherCollection.find().toArray();
-          res.send(result);
+          return res.send(result);
       }
     })
 
@@ -190,11 +193,24 @@ async function run() {
     // get all articles
     app.get('/articles', async (req, res) => {
      try {
-       const result = await articleCollection.find().toArray();
+       const result = await articlesCollection.find().toArray();
        res.send(result);
      } catch (error) {
      return res.send(error);
      }
+    })
+
+    app.post('/articles', async (req, res) => {
+      try {
+        const article = req.body;
+
+        const result = await articlesCollection.insertOne(article);
+
+        return res.send(result)
+
+      } catch (error) {
+        return res.send(error)
+      }
     })
 
 
