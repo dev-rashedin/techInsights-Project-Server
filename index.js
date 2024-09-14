@@ -84,14 +84,18 @@ async function run() {
 
         // making admin
         if (user.role === 'admin') {
-          const result = await userCollection.updateOne(query, { $set: { role: 'admin', status: 'verified' } })
+          const result = await userCollection.updateOne(query, { $set: { role: 'admin', status: 'verified', subscription: 'premium' } })
           return res.send(result)
         }
 
         // remove admin
            if (user.status === 'remove-admin') {
              const result = await userCollection.updateOne(query, {
-               $set: { status: 'verified', role: 'user' },
+               $set: {
+                 status: 'verified',
+                 role: 'user',
+                 subscription: 'usual',
+               },
              });
              return res.send(result);
            }
@@ -134,6 +138,12 @@ async function run() {
       } catch (error) {
         console.error(error)
       }
+    })
+
+    // get all the publisher
+    app.get('/publishers', async (req, res) => {
+      const result = await publisherCollection.find().toArray();
+      res.send(result)
     })
 
     // create publisher
