@@ -70,14 +70,30 @@ async function run() {
 
       // checking if the user exists already
       const existingUser = await userCollection.findOne(query);
+     
+      
       if (existingUser) {
         // if existing user try to change his role
-        if (user.role === 'requested') {
+        if (user.status === 'requested') {
           const result = await userCollection.updateOne(query, {
-            $set: { ...user },
+            $set: { status: 'requested'  },
           });
           return res.send(result);
         }
+
+        // making admin
+        if (user.role === 'admin') {
+          const result = await userCollection.updateOne(query, { $set: { role: 'admin', status: 'verified' } })
+          return res.send(result)
+        }
+
+        // remove admin
+           if (user.status === 'remove-admin') {
+             const result = await userCollection.updateOne(query, {
+               $set: { status: 'verified', role: 'user' },
+             });
+             return res.send(result);
+           }
 
         // if existing user try to buy subscription
         if (user.subscription === 'premium') {
