@@ -203,11 +203,12 @@ async function run() {
     // get single article by id
     app.get('/articles/:id', async (req, res) => {
       const id = req.params.id;
+      
       const query = {_id: new ObjectId(id)}
   
       try {
         const result = await articleCollection.findOne(query)
-        res.send(result);  
+       return res.send(result);  
       } catch (error) {
         return res.send(error.message)
       }
@@ -225,6 +226,24 @@ async function run() {
         return res.send(error)
       }
     })
+
+    // update view count
+    app.patch('/articles/:id/increment-view', async (req, res) => {
+      const articleId = req.params.id;
+
+      try {
+
+        const result = await articleCollection.updateOne(
+          { _id: new ObjectId(articleId) },
+          { $inc: { view_count: 1 } }
+        );
+
+       return res.send(result)
+      } catch (error) {
+        res.status(500).send({ error: 'Failed to increment view count' });
+      }
+    });
+
 
 
 
