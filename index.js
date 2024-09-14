@@ -25,8 +25,9 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(cookieParser());
 
-const uri =
-  `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.4qgkjzt.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.4qgkjzt.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
+
+// const uri = 'mongodb://localhost:27017';
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
@@ -71,17 +72,17 @@ async function run() {
       const existingUser = await userCollection.findOne(query);
       if (existingUser) {
         // if existing user try to change his role
-        if (user.role === 'Requested') {
+        if (user.role === 'requested') {
           const result = await userCollection.updateOne(query, {
-            $set: { status: user?.status },
+            $set: { ...user },
           });
           return res.send(result);
         }
 
         // if existing user try to buy subscription
-        if (user.subscription === 'Processing') {
+        if (user.subscription === 'premium') {
            const result = await userCollection.updateOne(query, {
-             $set: { subscription: user?.subscription },
+             $set: { ...user },
            });
            return res.send(result);
         }
@@ -98,6 +99,24 @@ async function run() {
       }
       const result = await userCollection.updateOne(query, updateDoc, options)
       res.send(result)
+    })
+
+    // updating user profile
+    app.patch('/users/:email', async (req, res) => {
+      const updatedUserInfo = req.body;
+      const email = req.params.email;
+
+      const filter = { email }
+      const updateDoc = {
+        $set: {...updatedUserInfo}
+      }
+
+      try {
+        const result = await userCollection.updateOne(filter, updateDoc);
+        res.send(result);
+      } catch (error) {
+        console.error(error)
+      }
     })
 
 
