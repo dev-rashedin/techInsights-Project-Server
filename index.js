@@ -27,6 +27,7 @@ app.use(cookieParser());
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.4qgkjzt.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
+
 // const uri = 'mongodb://localhost:27017';
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -45,12 +46,17 @@ async function run() {
 
     const userCollection = client.db('techInsightsDB').collection('users');
     const publisherCollection = client.db('techInsightsDB').collection('publishers');
+    const articleCollection = client.db('techInsightsDB').collection('articleCollection');
 
 
     // get all users
     app.get('/users', async (req, res) => {
-      const result = await userCollection.find().toArray()
-      res.send(result)
+      try {
+        const result = await userCollection.find().toArray();
+        res.send(result);
+      } catch (error) {
+        res.send(error)
+      }
     })
 
     // get specific user
@@ -72,23 +78,30 @@ async function run() {
       // checking if the user exists already
       const existingUser = await userCollection.findOne(query);
      
-      
-      if (existingUser) {
-        // if existing user try to change his role
-        if (user.status === 'requested') {
-          const result = await userCollection.updateOne(query, {
-            $set: { status: 'requested'  },
-          });
-          return res.send(result);
-        }
 
-        // making admin
-        if (user.role === 'admin') {
-          const result = await userCollection.updateOne(query, { $set: { role: 'admin', status: 'verified', subscription: 'premium' } })
-          return res.send(result)
-        }
+      try {
+         if (existingUser) {
+           // if existing user try to change his role
+           if (user.status === 'requested') {
+             const result = await userCollection.updateOne(query, {
+               $set: { status: 'requested' },
+             });
+             return res.send(result);
+           }
 
-        // remove admin
+           // making admin
+           if (user.role === 'admin') {
+             const result = await userCollection.updateOne(query, {
+               $set: {
+                 role: 'admin',
+                 status: 'verified',
+                 subscription: 'premium',
+               },
+             });
+             return res.send(result);
+           }
+
+           // remove admin
            if (user.status === 'remove-admin') {
              const result = await userCollection.updateOne(query, {
                $set: {
@@ -100,26 +113,37 @@ async function run() {
              return res.send(result);
            }
 
-        // if existing user try to buy subscription
-        if (user.subscription === 'premium') {
-           const result = await userCollection.updateOne(query, {
-             $set: { ...user },
+           // if existing user try to buy subscription
+           if (user.subscription === 'premium') {
+             const result = await userCollection.updateOne(query, {
+               $set: { ...user },
+             });
+             return res.send(result);
+           }
+
+           return res.send({
+             message: 'User already exists',
+             insertedId: null,
            });
-           return res.send(result);
-        }
+         }
 
-        return res.send({ message: 'User already exists', insertedId: null });
-      }
+         // saving the user data for the first time
 
-      // saving the user data for the first time
-      
-      const updateDoc = {
-        $set: {
-          ...user
-        },
+         const updateDoc = {
+           $set: {
+             ...user,
+           },
+         };
+         const result = await userCollection.updateOne(
+           query,
+           updateDoc,
+           options
+         );
+         res.send(result);
+        
+      } catch (error) {
+          res.send(error)
       }
-      const result = await userCollection.updateOne(query, updateDoc, options)
-      res.send(result)
     })
 
     // updating user profile
@@ -136,22 +160,41 @@ async function run() {
         const result = await userCollection.updateOne(filter, updateDoc);
         res.send(result);
       } catch (error) {
-        console.error(error)
+          const result = await publisherCollection.find().toArray();
+          res.send(result);
       }
     })
 
     // get all the publisher
     app.get('/publishers', async (req, res) => {
-      const result = await publisherCollection.find().toArray();
-      res.send(result)
+      try {
+          const result = await publisherCollection.find().toArray();
+          res.send(result);
+      } catch (error) {
+         return res.send(error);
+      }
     })
 
     // create publisher
     app.post('/publishers', async (req, res) => {
-      const publisherData = req.body;
+     try {
+       const publisherData = req.body;
 
-      const result = await publisherCollection.insertOne(publisherData)
-      return res.send(result)
+       const result = await publisherCollection.insertOne(publisherData);
+       return res.send(result);
+     } catch (error) {
+       return res.send(error)
+     }
+    })
+
+    // get all articles
+    app.get('/articles', async (req, res) => {
+     try {
+       const result = await articleCollection.find().toArray();
+       res.send(result);
+     } catch (error) {
+     return res.send(error);
+     }
     })
 
 
