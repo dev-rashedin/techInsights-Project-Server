@@ -46,8 +46,9 @@ async function run() {
 
     const userCollection = client.db('techInsightsDB').collection('users');
     const publisherCollection = client.db('techInsightsDB').collection('publishers');
-    const articleCollection = client.db('techInsightsDB').collection('articles');
-
+    const articleCollection = client
+      .db('techInsightsDB')
+      .collection('articles');
 
     // get all users
     app.get('/users', async (req, res) => {
@@ -200,6 +201,7 @@ async function run() {
         return res.send(error.message)
       }
     })
+
     // get single article by id
     app.get('/articles/:id', async (req, res) => {
       const id = req.params.id;
@@ -214,11 +216,26 @@ async function run() {
       }
     })
 
+    // get articles by email
+    app.get('/my-articles/:email', async (req, res) => {
+      const email = req.params.email;
+      
+      const query = { 'writers_email': email };
+  
+      try {
+        const result = await articleCollection.find(query).toArray()
+       return res.send(result);  
+      } catch (error) {
+        return res.send(error.message)
+      }
+    })
+
+    // post a article
     app.post('/articles', async (req, res) => {
       try {
-        const article = req.body;
-
-        const result = await articlesCollection.insertOne(article);
+        const articleData = req.body;
+  
+        const result = await articleCollection.insertOne(articleData);
 
         return res.send(result)
 
@@ -240,9 +257,36 @@ async function run() {
 
        return res.send(result)
       } catch (error) {
-        res.status(500).send({ error: 'Failed to increment view count' });
+       return res.status(500).send({ error: 'Failed to increment view count' });
       }
     });
+
+    // update article
+    app.patch('/update/:id', async (req, res) => {
+      const id = req.params.id;
+      const updatedUserInfo = req.body;
+      const filter = { _id: new ObjectId(id) };
+      const updatedDoc = {
+        $set: {...updatedUserInfo}
+      }
+
+      try {
+        const result = await articleCollection.updateOne(filter, updatedDoc); 
+        return res.send(result) 
+      } catch (error) {
+        return res.send(error.message)
+      }
+      
+    })
+
+    // delete a article
+    app.delete('/articles/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) }
+      
+      const result = await articleCollection.deleteOne(query);
+      res.send(result)
+    })
 
 
 
