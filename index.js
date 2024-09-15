@@ -45,7 +45,9 @@ async function run() {
     await client.connect();
 
     const userCollection = client.db('techInsightsDB').collection('users');
-    const publisherCollection = client.db('techInsightsDB').collection('publishers');
+    const publisherCollection = client
+      .db('techInsightsDB')
+      .collection('publishers');
     const articleCollection = client
       .db('techInsightsDB')
       .collection('articles');
@@ -56,22 +58,22 @@ async function run() {
         const result = await userCollection.find().toArray();
         res.send(result);
       } catch (error) {
-       return res.send(error)
+        return res.send(error);
       }
-    })
+    });
 
     // get specific user
     app.get('/users/:email', async (req, res) => {
-     try {
-       const email = req.params.email;
-       const query = { email: email };
+      try {
+        const email = req.params.email;
+        const query = { email: email };
 
-       const result = await userCollection.findOne(query);
-       return res.send(result);
-     } catch (error) {
-      return res.send(error)
-     }
-    })
+        const result = await userCollection.findOne(query);
+        return res.send(result);
+      } catch (error) {
+        return res.send(error);
+      }
+    });
 
     // create or update user
     app.put('/users', async (req, res) => {
@@ -82,182 +84,223 @@ async function run() {
 
       // checking if the user exists already
       const existingUser = await userCollection.findOne(query);
-     
 
       try {
-         if (existingUser) {
-           // if existing user try to change his role
-           if (user.status === 'requested') {
-             const result = await userCollection.updateOne(query, {
-               $set: { status: 'requested' },
-             });
-             return res.send(result);
-           }
+        if (existingUser) {
+          // if existing user try to change his role
+          if (user.status === 'requested') {
+            const result = await userCollection.updateOne(query, {
+              $set: { status: 'requested' },
+            });
+            return res.send(result);
+          }
 
-           // making admin
-           if (user.role === 'admin') {
-             const result = await userCollection.updateOne(query, {
-               $set: {
-                 role: 'admin',
-                 status: 'verified',
-                 subscription: 'premium',
-               },
-             });
-             return res.send(result);
-           }
+          // making admin
+          if (user.role === 'admin') {
+            const result = await userCollection.updateOne(query, {
+              $set: {
+                role: 'admin',
+                status: 'verified',
+                subscription: 'premium',
+              },
+            });
+            return res.send(result);
+          }
 
-           // remove admin
-           if (user.status === 'remove-admin') {
-             const result = await userCollection.updateOne(query, {
-               $set: {
-                 status: 'verified',
-                 role: 'user',
-                 subscription: 'usual',
-               },
-             });
-             return res.send(result);
-           }
+          // remove admin
+          if (user.status === 'remove-admin') {
+            const result = await userCollection.updateOne(query, {
+              $set: {
+                status: 'verified',
+                role: 'user',
+                subscription: 'usual',
+              },
+            });
+            return res.send(result);
+          }
 
-           // if existing user try to buy subscription
-           if (user.subscription === 'premium') {
-             const result = await userCollection.updateOne(query, {
-               $set: { ...user },
-             });
-             return res.send(result);
-           }
+          // if existing user try to buy subscription
+          if (user.subscription === 'premium') {
+            const result = await userCollection.updateOne(query, {
+              $set: { ...user },
+            });
+            return res.send(result);
+          }
 
-           return res.send({
-             message: 'User already exists',
-             insertedId: null,
-           });
-         }
+          return res.send({
+            message: 'User already exists',
+            insertedId: null,
+          });
+        }
 
-         // saving the user data for the first time
+        // saving the user data for the first time
 
-         const updateDoc = {
-           $set: {
-             ...user,
-           },
-         };
-         const result = await userCollection.updateOne(
-           query,
-           updateDoc,
-           options
-         );
-         res.send(result);
-        
+        const updateDoc = {
+          $set: {
+            ...user,
+          },
+        };
+        const result = await userCollection.updateOne(
+          query,
+          updateDoc,
+          options
+        );
+        res.send(result);
       } catch (error) {
-         return res.send(error)
+        return res.send(error);
       }
-    })
+    });
 
     // updating user profile
     app.patch('/users/:email', async (req, res) => {
       const updatedUserInfo = req.body;
       const email = req.params.email;
 
-      const filter = { email }
+      const filter = { email };
       const updateDoc = {
-        $set: {...updatedUserInfo}
-      }
+        $set: { ...updatedUserInfo },
+      };
 
       try {
         const result = await userCollection.updateOne(filter, updateDoc);
         res.send(result);
       } catch (error) {
-          return res.send(result);
+        return res.send(result);
       }
-    })
+    });
 
     // get all the publisher
     app.get('/publishers', async (req, res) => {
       try {
-          const result = await publisherCollection.find().toArray();
-          res.send(result);
+        const result = await publisherCollection.find().toArray();
+        res.send(result);
       } catch (error) {
-         return res.send(error);
+        return res.send(error);
       }
-    })
+    });
 
     // create publisher
     app.post('/publishers', async (req, res) => {
-     try {
-       const publisherData = req.body;
+      try {
+        const publisherData = req.body;
 
-       const result = await publisherCollection.insertOne(publisherData);
-       return res.send(result);
-     } catch (error) {
-       return res.send(error)
-     }
-    })
+        const result = await publisherCollection.insertOne(publisherData);
+        return res.send(result);
+      } catch (error) {
+        return res.send(error);
+      }
+    });
 
     // get all articles
     app.get('/articles', async (req, res) => {
-  
       try {
         const result = await articleCollection.find().toArray();
-        res.send(result);  
+        res.send(result);
       } catch (error) {
-        return res.send(error.message)
+        return res.send(error.message);
       }
-    })
+    });
 
     // get single article by id
     app.get('/articles/:id', async (req, res) => {
       const id = req.params.id;
-      
-      const query = {_id: new ObjectId(id)}
-  
+
+      const query = { _id: new ObjectId(id) };
+
       try {
-        const result = await articleCollection.findOne(query)
-       return res.send(result);  
+        const result = await articleCollection.findOne(query);
+        return res.send(result);
       } catch (error) {
-        return res.send(error.message)
+        return res.send(error.message);
       }
-    })
+    });
 
     // get articles by email
     app.get('/my-articles/:email', async (req, res) => {
       const email = req.params.email;
-      
-      const query = { 'writers_email': email };
-  
+
+      const query = { writers_email: email };
+
       try {
-        const result = await articleCollection.find(query).toArray()
-       return res.send(result);  
+        const result = await articleCollection.find(query).toArray();
+        return res.send(result);
       } catch (error) {
-        return res.send(error.message)
+        return res.send(error.message);
       }
-    })
+    });
 
     // post a article
     app.post('/articles', async (req, res) => {
       try {
         const articleData = req.body;
-  
+
         const result = await articleCollection.insertOne(articleData);
 
-        return res.send(result)
-
+        return res.send(result);
       } catch (error) {
-        return res.send(error)
+        return res.send(error);
       }
-    })
+    });
+
+    // update a article by admin
+    app.put('/articles/:id', async (req, res) => {
+      const id = req.params.id;
+      const filter = {_id: new ObjectId(id)}
+      const updatedInfo = req.body;
+
+      // approve a post
+      try {
+         if (updatedInfo.status === 'approved') {
+           const result = await articleCollection.updateOne(filter, {
+             $set: { status: 'approved' },
+           });
+           res.send(result);
+         } 
+      } catch (error) {
+        res.send(error.message)
+      }
+
+      // decline a post
+      try {
+        if (updatedInfo.status === 'declined') {
+          const result = await articleCollection.updateOne(filter, {
+            $set: { status: 'declined' },
+          });
+          res.send(result);
+        }
+      } catch (error) {
+        res.send(error.message)
+      }
+
+// make premium
+      try {
+        if (updatedInfo.isPremium === 'yes') {
+          const result = await articleCollection.updateOne(filter, {
+            $set: { isPremium: 'yes' },
+          });
+          res.send(result);
+        }
+      } catch (error) {
+        res.send(error.message)
+      }
+
+    });
 
     // update view count
     app.patch('/articles/:id/increment-view', async (req, res) => {
       const articleId = req.params.id;
 
       try {
-
         const result = await articleCollection.updateOne(
           { _id: new ObjectId(articleId) },
           { $inc: { view_count: 1 } }
         );
 
-       return res.send(result)
+        return res.send(result);
       } catch (error) {
-       return res.status(500).send({ error: 'Failed to increment view count' });
+        return res
+          .status(500)
+          .send({ error: 'Failed to increment view count' });
       }
     });
 
@@ -267,29 +310,25 @@ async function run() {
       const updatedUserInfo = req.body;
       const filter = { _id: new ObjectId(id) };
       const updatedDoc = {
-        $set: {...updatedUserInfo}
-      }
+        $set: { ...updatedUserInfo },
+      };
 
       try {
-        const result = await articleCollection.updateOne(filter, updatedDoc); 
-        return res.send(result) 
+        const result = await articleCollection.updateOne(filter, updatedDoc);
+        return res.send(result);
       } catch (error) {
-        return res.send(error.message)
+        return res.send(error.message);
       }
-      
-    })
+    });
 
     // delete a article
     app.delete('/articles/:id', async (req, res) => {
       const id = req.params.id;
-      const query = { _id: new ObjectId(id) }
-      
+      const query = { _id: new ObjectId(id) };
+
       const result = await articleCollection.deleteOne(query);
-      res.send(result)
-    })
-
-
-
+      res.send(result);
+    });
 
     // Send a ping to confirm a successful connection
     await client.db('admin').command({ ping: 1 });
