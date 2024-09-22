@@ -14,6 +14,7 @@ const port = process.env.PORT || 5000;
 const corsOptions = {
   origin: [
     'http://localhost:5173',
+    'http://localhost:5174',
     'https://tech-insights-d2159.web.app',
     'https://tech-insights-d2159.firebaseapp.com',
   ],
@@ -42,7 +43,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
 
     const userCollection = client.db('techInsightsDB').collection('users');
     const publisherCollection = client
@@ -51,9 +52,53 @@ async function run() {
     const articleCollection = client
       .db('techInsightsDB')
       .collection('articles');
+    const messageCollection = client
+      .db('techInsightsDB')
+      .collection('messages');
+
+    // auth related api
+    app.post('/jwt', async (req, res) => {
+      const user = req.body;
+      const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
+        expiresIn: '7d',
+      });
+      res.send({ token });
+    });
+
+    // middlewares
+    const verifyToken = (req, res, next) => {
+      console.log('inside verify token', req.headers.authorization);
+
+      if (!req.headers.authorization) {
+        return res.status(401).send({ message: 'unauthorized access' });
+      }
+
+      const token = req.headers.authorization.split(' ')[1];
+
+      jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+        if (err) {
+          return res.status(401).send({ message: 'unauthorized access' });
+        }
+        req.decoded = decoded;
+        next();
+      });
+    };
+
+    // verify admin middleware
+    const verifyAdmin = async (req, res, next) => {
+      const user = req.decoded;
+      
+      const query = { email: user?.email };
+      const result = await userCollection.findOne(query);
+
+      if (!result || result?.role !== 'admin')
+        return res.status(401).send({ message: 'unauthorized access!!' });
+
+      next();
+    };
 
     // get all users
-    app.get('/users', async (req, res) => {
+    app.get('/users', verifyToken, async (req, res) => {
       try {
         const result = await userCollection.find().toArray();
         res.send(result);
@@ -63,12 +108,14 @@ async function run() {
     });
 
     // get specific user
-    app.get('/users/:email', async (req, res) => {
+    app.get('/users/:email', verifyToken, verifyAdmin, async (req, res) => {
       try {
-        const email = req.params.email;
+        const email = req.params.email; 
+
         const query = { email: email };
 
         const result = await userCollection.findOne(query);
+
         return res.send(result);
       } catch (error) {
         return res.send(error);
@@ -201,6 +248,20 @@ async function run() {
       }
     });
 
+    // get recent articles
+    app.get('/recent-articles', async (req, res) => {
+      try {
+        const result = await articleCollection
+          .find()
+          .sort({ view_count: -1 })
+          .toArray();
+
+        res.send(result);
+      } catch (error) {
+        res.status(500).send(error.message);
+      }
+    });
+
     // get single article by id
     app.get('/articles/:id', async (req, res) => {
       const id = req.params.id;
@@ -245,19 +306,19 @@ async function run() {
     // update a article by admin
     app.put('/articles/:id', async (req, res) => {
       const id = req.params.id;
-      const filter = {_id: new ObjectId(id)}
+      const filter = { _id: new ObjectId(id) };
       const updatedInfo = req.body;
 
       // approve a post
       try {
-         if (updatedInfo.status === 'approved') {
-           const result = await articleCollection.updateOne(filter, {
-             $set: { status: 'approved' },
-           });
-           res.send(result);
-         } 
+        if (updatedInfo.status === 'approved') {
+          const result = await articleCollection.updateOne(filter, {
+            $set: { status: 'approved' },
+          });
+          res.send(result);
+        }
       } catch (error) {
-        res.send(error.message)
+        res.send(error.message);
       }
 
       // decline a post
@@ -269,10 +330,10 @@ async function run() {
           res.send(result);
         }
       } catch (error) {
-        res.send(error.message)
+        res.send(error.message);
       }
 
-// make premium
+      // make premium
       try {
         if (updatedInfo.isPremium === 'yes') {
           const result = await articleCollection.updateOne(filter, {
@@ -281,9 +342,8 @@ async function run() {
           res.send(result);
         }
       } catch (error) {
-        res.send(error.message)
+        res.send(error.message);
       }
-
     });
 
     // update view count
@@ -330,11 +390,44 @@ async function run() {
       res.send(result);
     });
 
+    // get single  message by id
+    app.get('/message/:id', async (req, res) => {
+      const id = req.params.id;
+
+      const query = { _id: new ObjectId(id) };
+
+      try {
+        const result = await articleCollection.findOne(query);
+        return res.send(result);
+      } catch (error) {
+        return res.send(error.message);
+      }
+    });
+
+    // save a decline message
+    app.post('/message/:id', async (req, res) => {
+      const id = req.params.id;
+      const message = req.body;
+
+      const query = { _id: new ObjectId(id) };
+
+      const existingMessage = await messageCollection.findOne(query);
+
+      if (!existingMessage) {
+        try {
+          const result = await messageCollection.insertOne(message);
+          res.send(result);
+        } catch (error) {
+          res.send(error.message);
+        }
+      }
+    });
+
     // Send a ping to confirm a successful connection
     await client.db('admin').command({ ping: 1 });
-    console.log(
-      'Pinged your deployment. You successfully connected to MongoDB!'
-    );
+    // console.log(
+    //   'Pinged your deployment. You successfully connected to MongoDB!'
+    // );
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
