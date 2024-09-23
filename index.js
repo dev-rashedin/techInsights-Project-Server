@@ -52,6 +52,9 @@ async function run() {
     const messageCollection = client
       .db('techInsightsDB')
       .collection('messages');
+    const paymentCollection = client
+      .db('techInsightsDB')
+      .collection('payments');
 
     // auth related api
     app.post('/jwt', async (req, res) => {
@@ -74,7 +77,7 @@ async function run() {
 
       jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
         if (err) {
-           console.log('JWT verification error:', err);
+          console.log('JWT verification error:', err);
           return res.status(401).send({ message: 'unauthorized access' });
         }
         req.decoded = decoded;
@@ -424,26 +427,39 @@ async function run() {
     // stripe
     app.post('/create-payment-intent', async (req, res) => {
       const { price } = req.body;
-const amount = parseFloat(price * 100)
+      const amount = parseFloat(price * 100);
 
-       if (amount < 50) {
-         return res.status(400).send({
-           error: 'The amount must be at least 50 cents (0.50 USD).',
-         });
+      if (amount < 50) {
+        return res.status(400).send({
+          error: 'The amount must be at least 50 cents (0.50 USD).',
+        });
       }
-      
+
       try {
         const paymentIntent = await stripe.paymentIntents.create({
           amount: amount,
           currency: 'usd',
-          payment_method_types: ['card']
-        })
+          payment_method_types: ['card'],
+        });
 
-        res.status(200).send({clientSecret: paymentIntent.client_secret})
+        res.status(200).send({ clientSecret: paymentIntent.client_secret });
       } catch (error) {
-        return res.status().send({error: error.message })
+        return res.status().send({ error: error.message });
       }
+    });
 
+    // save payment info in db
+    // payment
+    app.post('/payments', async (req, res) => {
+      const payment = req.body;
+
+      try {
+        const paymentResult = await paymentCollection.insertOne(payment);
+
+        res.status(200).send(paymentResult);
+      } catch (error) {
+        console.error(error)
+      }
     });
 
     // Send a ping to confirm a successful connection
