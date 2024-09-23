@@ -1,12 +1,11 @@
+require('dotenv').config();
 const express = require('express');
 const app = express();
 const cors = require('cors');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const jwt = require('jsonwebtoken');
-const cookieParser = require('cookie-parser');
 
-
-require('dotenv').config();
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 const port = process.env.PORT || 5000;
 
@@ -18,16 +17,14 @@ const corsOptions = {
     'https://tech-insights-d2159.web.app',
     'https://tech-insights-d2159.firebaseapp.com',
   ],
-  credentials: true,
+  // credentials: true,
   optionSuccessStatus: 200,
 };
 
 app.use(cors(corsOptions));
 app.use(express.json());
-app.use(cookieParser());
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.4qgkjzt.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
-
 
 // const uri = 'mongodb://localhost:27017';
 
@@ -67,7 +64,7 @@ async function run() {
 
     // middlewares
     const verifyToken = (req, res, next) => {
-      console.log('inside verify token', req.headers.authorization);
+      // console.log('inside verify token', req.headers.authorization);
 
       if (!req.headers.authorization) {
         return res.status(401).send({ message: 'unauthorized access' });
@@ -77,6 +74,7 @@ async function run() {
 
       jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
         if (err) {
+           console.log('JWT verification error:', err);
           return res.status(401).send({ message: 'unauthorized access' });
         }
         req.decoded = decoded;
@@ -87,7 +85,7 @@ async function run() {
     // verify admin middleware
     const verifyAdmin = async (req, res, next) => {
       const user = req.decoded;
-      
+
       const query = { email: user?.email };
       const result = await userCollection.findOne(query);
 
@@ -110,7 +108,7 @@ async function run() {
     // get specific user
     app.get('/users/:email', verifyToken, verifyAdmin, async (req, res) => {
       try {
-        const email = req.params.email; 
+        const email = req.params.email;
 
         const query = { email: email };
 
@@ -423,6 +421,31 @@ async function run() {
       }
     });
 
+    // stripe
+    app.post('/create-payment-intent', async (req, res) => {
+      const { price } = req.body;
+const amount = parseFloat(price * 100)
+
+       if (amount < 50) {
+         return res.status(400).send({
+           error: 'The amount must be at least 50 cents (0.50 USD).',
+         });
+      }
+      
+      try {
+        const paymentIntent = await stripe.paymentIntents.create({
+          amount: amount,
+          currency: 'usd',
+          payment_method_types: ['card']
+        })
+
+        res.status(200).send({clientSecret: paymentIntent.client_secret})
+      } catch (error) {
+        return res.status().send({error: error.message })
+      }
+
+    });
+
     // Send a ping to confirm a successful connection
     await client.db('admin').command({ ping: 1 });
     // console.log(
@@ -434,8 +457,6 @@ async function run() {
   }
 }
 run().catch(console.dir);
-
-
 
 app.get('/', (req, res) => {
   res.send('The-Tech-Insight server is running');
