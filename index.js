@@ -246,7 +246,8 @@ async function run() {
       // const articles = await articleCollection.find().toArray()
 
       // const totalViews = articles.reduce((views, article) => views + article.view_count ,0)
-      
+
+      // get article collection
       const result = await articleCollection.aggregate([
         {
           $group: {
@@ -255,6 +256,7 @@ async function run() {
         }}
       ]).next()
 
+// get articles by publishers
       const articleByPublisher = await articleCollection.aggregate([
         {
           $group: {
@@ -268,18 +270,34 @@ async function run() {
             count: 1,
             _id: 0
           }
-        },
-       {
-        $sort: {count: -1}  
-       }
+        }
         
       ]).toArray()
+
+      // get subscription count
+      const subscriptionCount = await userCollection
+        .aggregate([
+          {
+            $group: {
+              _id: '$subscription',
+              count: { $sum: 1 },
+            },
+          },
+          {
+            $project: {
+              subscriptionType: '$_id',
+              count: 1,
+              _id: 0,
+            },
+          },
+        ])
+        .toArray();
 
       const publishedArticle = await articleCollection.countDocuments({status: 'approved'})
 
       const totalViews = result ? result.totalViews : 0;
 
-      res.send({ totalUsers, totalArticles, totalPublishers, totalViews, publishedArticle, articleByPublisher });
+      res.send({ totalUsers, totalArticles, totalPublishers, totalViews, publishedArticle, articleByPublisher, subscriptionCount });
     })
 
     // updating user profile
