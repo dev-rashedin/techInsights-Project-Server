@@ -4,6 +4,7 @@ const app = express();
 const cors = require('cors');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const jwt = require('jsonwebtoken');
+const cron = require('node-cron');
 
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
@@ -99,7 +100,7 @@ async function run() {
     };
 
     // get all users
-    app.get('/users', verifyToken, async (req, res) => {
+    app.get('/users', verifyToken, verifyAdmin, async (req, res) => {
       try {
         const result = await userCollection.find().toArray();
         res.send(result);
@@ -109,7 +110,7 @@ async function run() {
     });
 
     // get specific user
-    app.get('/users/:email', verifyToken, verifyAdmin, async (req, res) => {
+    app.get('/users/:email', verifyToken, async (req, res) => {
       try {
         const email = req.params.email;
 
@@ -126,6 +127,9 @@ async function run() {
     // create or update user
     app.put('/users', async (req, res) => {
       const user = req.body;
+
+      console.log(user)
+      
 
       const query = { email: user.email };
       const options = { upsert: true };
@@ -165,12 +169,16 @@ async function run() {
               },
             });
             return res.send(result);
-          }
+          }          
 
           // if existing user try to buy subscription
           if (user.subscription === 'premium') {
             const result = await userCollection.updateOne(query, {
-              $set: { ...user },
+              $set: {
+                subscription: 'premium',
+                premiumToken:
+                  Math.floor(new Date().getTime() / 1000) + user.validationTime,
+              },
             });
             return res.send(result);
           }
@@ -199,8 +207,34 @@ async function run() {
       }
     });
 
+    // dynamically check user subscription
+    cron.schedule('* * * * *', async (req, res) => {
+      try {
+        const currentTimeInSeconds = Math.floor(new Date().getTime() / 1000);
+
+        const filter = {
+          subscription: 'premium',
+          premiumToken: { $lt: currentTimeInSeconds },
+        };
+
+        const expiredUsers = await userCollection.find(filter).toArray();
+
+        // Update all expired users to "regular"
+        if (expiredUsers.length > 0) {
+          const updatedDoc = {
+            $set: { subscription: 'usual', premiumToken: null },
+          };
+
+          await userCollection.updateMany(filter, updatedDoc);
+          console.log(`${expiredUsers.length} users downgraded to usual`);
+        }
+      } catch (error) {
+        console.error('Error downgrading subscriptions:', error);
+      }
+    });
+
     // updating user profile
-    app.patch('/users/:email', async (req, res) => {
+    app.patch('/users/:email', verifyToken, async (req, res) => {
       const updatedUserInfo = req.body;
       const email = req.params.email;
 
@@ -228,7 +262,7 @@ async function run() {
     });
 
     // create publisher
-    app.post('/publishers', async (req, res) => {
+    app.post('/publishers', verifyToken, verifyAdmin, async (req, res) => {
       try {
         const publisherData = req.body;
 
@@ -264,7 +298,7 @@ async function run() {
     });
 
     // get single article by id
-    app.get('/articles/:id', async (req, res) => {
+    app.get('/articles/:id', verifyToken, async (req, res) => {
       const id = req.params.id;
 
       const query = { _id: new ObjectId(id) };
@@ -278,7 +312,7 @@ async function run() {
     });
 
     // get articles by email
-    app.get('/my-articles/:email', async (req, res) => {
+    app.get('/my-articles/:email', verifyToken, async (req, res) => {
       const email = req.params.email;
 
       const query = { writers_email: email };
@@ -292,7 +326,7 @@ async function run() {
     });
 
     // post a article
-    app.post('/articles', async (req, res) => {
+    app.post('/articles', verifyToken, async (req, res) => {
       try {
         const articleData = req.body;
 
@@ -305,7 +339,7 @@ async function run() {
     });
 
     // update a article by admin
-    app.put('/articles/:id', async (req, res) => {
+    app.put('/articles/:id', verifyToken, async (req, res) => {
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) };
       const updatedInfo = req.body;
@@ -366,7 +400,7 @@ async function run() {
     });
 
     // update article
-    app.patch('/update/:id', async (req, res) => {
+    app.patch('/update/:id', verifyToken, async (req, res) => {
       const id = req.params.id;
       const updatedUserInfo = req.body;
       const filter = { _id: new ObjectId(id) };
@@ -383,7 +417,7 @@ async function run() {
     });
 
     // delete a article
-    app.delete('/articles/:id', async (req, res) => {
+    app.delete('/articles/:id', verifyToken, async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
 
