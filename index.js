@@ -246,19 +246,6 @@ async function run() {
       // const articles = await articleCollection.find().toArray()
 
       // const totalViews = articles.reduce((views, article) => views + article.view_count ,0)
-
-            // const result = await paymentCollection
-            //   .aggregate([
-            //     {
-            //       $group: {
-            //         _id: null,
-            //         totalRevenue: {
-            //           $sum: '$price',
-            //         },
-            //       },
-            //     },
-            //   ])
-      //   .toArray();
       
       const result = await articleCollection.aggregate([
         {
@@ -268,11 +255,31 @@ async function run() {
         }}
       ]).next()
 
+      const articleByPublisher = await articleCollection.aggregate([
+        {
+          $group: {
+            _id: '$publisher',
+            count: { $sum: 1 }
+          },
+        },
+        {
+          $project: {
+            publisher: '$_id',
+            count: 1,
+            _id: 0
+          }
+        },
+       {
+        $sort: {count: -1}  
+       }
+        
+      ]).toArray()
+
       const publishedArticle = await articleCollection.countDocuments({status: 'approved'})
 
       const totalViews = result ? result.totalViews : 0;
 
-      res.send({ totalUsers, totalArticles, totalPublishers, totalViews, publishedArticle });
+      res.send({ totalUsers, totalArticles, totalPublishers, totalViews, publishedArticle, articleByPublisher });
     })
 
     // updating user profile
