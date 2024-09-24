@@ -233,6 +233,48 @@ async function run() {
       }
     });
 
+    // get admin stat
+    app.get('/admin-stats', verifyToken, verifyAdmin, async (req, res) => {
+      const totalUsers = await userCollection.countDocuments();
+
+      const totalArticles = await articleCollection.countDocuments();
+
+      const totalPublishers = await publisherCollection.countDocuments();
+
+      // const revenue = payments.reduce((total, payment) => total + payment.price, 0);
+
+      // const articles = await articleCollection.find().toArray()
+
+      // const totalViews = articles.reduce((views, article) => views + article.view_count ,0)
+
+            // const result = await paymentCollection
+            //   .aggregate([
+            //     {
+            //       $group: {
+            //         _id: null,
+            //         totalRevenue: {
+            //           $sum: '$price',
+            //         },
+            //       },
+            //     },
+            //   ])
+      //   .toArray();
+      
+      const result = await articleCollection.aggregate([
+        {
+          $group: {
+            _id: null,
+            totalViews : {$sum: '$view_count'}
+        }}
+      ]).next()
+
+      const publishedArticle = await articleCollection.countDocuments({status: 'approved'})
+
+      const totalViews = result ? result.totalViews : 0;
+
+      res.send({ totalUsers, totalArticles, totalPublishers, totalViews, publishedArticle });
+    })
+
     // updating user profile
     app.patch('/users/:email', verifyToken, async (req, res) => {
       const updatedUserInfo = req.body;
