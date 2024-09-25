@@ -495,11 +495,10 @@ async function run() {
     // get single  message by id
     app.get('/message/:id', async (req, res) => {
       const id = req.params.id;
-
-      const query = { _id: new ObjectId(id) };
+      const query = { articleId: id };
 
       try {
-        const result = await articleCollection.findOne(query);
+        const result = await messageCollection.findOne(query);
         return res.send(result);
       } catch (error) {
         return res.send(error.message);
@@ -509,6 +508,8 @@ async function run() {
     // save a decline message
     app.post('/message/:id', async (req, res) => {
       const id = req.params.id;
+      console.log(id)
+      
       const message = req.body;
 
       const query = { _id: new ObjectId(id) };
