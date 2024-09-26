@@ -4,11 +4,12 @@ const app = express();
 const cors = require('cors');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const jwt = require('jsonwebtoken');
-const cron = require('node-cron');
-
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-
 const port = process.env.PORT || 5000;
+
+const cron = require('node-cron');
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const nodemailer = require('nodemailer');
+
 
 // middleware
 const corsOptions = {
@@ -21,9 +22,48 @@ const corsOptions = {
   // credentials: true,
   optionSuccessStatus: 200,
 };
-
 app.use(cors(corsOptions));
 app.use(express.json());
+
+// send email
+const sendEmail = (emailAddress, emailData) => {
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    host: 'smtp.gmail.com',
+    port: 587,
+    secure: false, // true for port 465, false for other ports
+    auth: {
+      user: process.env.TRANSPORTER_Email,
+      pass: process.env.TRANSPORTER_PASS,
+    },
+  });
+
+  // verify connection configuration
+  transporter.verify(function (error, success) {
+    if (error) {
+      console.log(error);
+    } else {
+      console.log('Server is ready to take our messages');
+    }
+  });
+
+  const mailBody = {
+    from: `"TechInsights" <${process.env.TRANSPORTER_EMAIL}>`, // sender address
+    to: emailAddress, // list of receivers
+    subject: emailData.subject, // Subject line
+    html: emailData.message, // html body
+  };
+
+  const info = transporter.sendMail(mailBody, (error, info) => {
+    if (error) {
+      console.error(error);
+    } else {
+      console.log('Email Sent ' + info.response);
+    }
+  });
+
+  console.log('Message sent: %s', info.messageId);
+}
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.4qgkjzt.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
@@ -127,10 +167,7 @@ async function run() {
     // create or update user
     app.put('/users', async (req, res) => {
       const user = req.body;
-
-      console.log(user)
       
-
       const query = { email: user.email };
       const options = { upsert: true };
 
@@ -156,6 +193,10 @@ async function run() {
                 subscription: 'premium',
               },
             });
+            sendEmail(user?.email, {
+              subject: 'Congratulation for Adminship',
+              message: 'You are now an admin of our TechInsights website. Please follow the community rules.'
+            })
             return res.send(result);
           }
 
@@ -168,6 +209,11 @@ async function run() {
                 subscription: 'usual',
               },
             });
+             sendEmail(user?.email, {
+               subject: 'Adminship cancelled',
+               message:
+                 'You are now no longer an admin of our TechInsights website. Please reach out us to know more.',
+             });
             return res.send(result);
           }          
 
@@ -201,7 +247,14 @@ async function run() {
           updateDoc,
           options
         );
-        res.send(result);
+       
+        // send email
+        sendEmail(user?.email, {
+          subject: 'Welcome to TechInsights',
+          message: `Dear friend, your registration in TechInsights website is successful. Stay connected with us, hope you'll enjoy the journey.`
+        })
+
+         res.send(result);
       } catch (error) {
         return res.send(error);
       }

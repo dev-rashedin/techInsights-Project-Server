@@ -19,6 +19,7 @@
     "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.8.1",
     "node-cron": "^3.0.3",
+    "nodemailer": "^6.9.15",
     "stripe": "^16.12.0"
   }
 }
