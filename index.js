@@ -20,8 +20,11 @@ const corsOptions = {
     'https://tech-insights-d2159.firebaseapp.com',
   ],
   // credentials: true,
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   optionSuccessStatus: 200,
 };
+
+
 app.use(cors(corsOptions));
 app.use(express.json());
 
@@ -70,15 +73,21 @@ const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@clu
 // const uri = 'mongodb://localhost:27017';
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
-const client = new MongoClient(uri, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
-  },
-});
+let client;
 
 async function run() {
+
+  if (!client) {
+    // Create a new MongoClient if it doesn't exist
+    client = new MongoClient(uri, {
+      serverApi: {
+        version: ServerApiVersion.v1,
+        strict: true,
+        deprecationErrors: true,
+      },
+    });
+  }
+
   try {
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
@@ -402,6 +411,24 @@ async function run() {
         return res.send(error.message);
       }
     });
+
+    // get article count
+    app.get('/articleCount', async (req, res) => {
+        try {
+          const allArticles = await articleCollection.countDocuments();
+          const approvedArticles = await articleCollection.countDocuments({ status: 'approved' })
+        
+          res
+            .status(200)
+            .send(
+              { allArticles: allArticles, approvedArticles: approvedArticles }
+            );
+        } catch (error) {
+          return res.status(500).send({error: error.message});
+        }
+    })
+
+    // get approved article
 
     // get recent articles
     app.get('/recent-articles', async (req, res) => {
