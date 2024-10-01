@@ -404,8 +404,16 @@ async function run() {
 
     // get all articles
     app.get('/articles', async (req, res) => {
+      const page = parseInt(req.query.page) || 0;
+      const size = parseInt(req.query.size) || 6;
+      
       try {
-        const result = await articleCollection.find().toArray();
+        const result = await articleCollection
+          .find()
+          .skip(page)
+          .limit(size)
+          .toArray();
+        
         res.send(result);
       } catch (error) {
         return res.send(error.message);
