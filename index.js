@@ -406,11 +406,22 @@ async function run() {
     app.get('/articles', async (req, res) => {
       const page = parseInt(req.query.page) || 0;
       const size = parseInt(req.query.size) || 6;
+      const status = req.query.status;
+      const filter = req.query.filter;
+
+      let query = {};
+      if (status) {
+        query.status = status;
+      }
+      if (filter) {
+        query.publisher = filter
+      }
+      
       
       try {
         const result = await articleCollection
-          .find()
-          .skip(page)
+          .find(query)
+          .skip(page * size)
           .limit(size)
           .toArray();
         
@@ -422,9 +433,14 @@ async function run() {
 
     // get article count
     app.get('/articleCount', async (req, res) => {
+      const filter = req.query.filter
+
+      let query = {}
+      if (filter) query.publisher = filter;
+
         try {
           const allArticles = await articleCollection.countDocuments();
-          const approvedArticles = await articleCollection.countDocuments({ status: 'approved' })
+          const approvedArticles = await articleCollection.countDocuments({ status: 'approved', ...query })
         
           res
             .status(200)
