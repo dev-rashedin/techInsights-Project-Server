@@ -408,8 +408,15 @@ async function run() {
       const size = parseInt(req.query.size) || 6;
       const status = req.query.status;
       const filter = req.query.filter;
+      const search = req.query.search
+      console.log(search)
+      
 
-      let query = {};
+      let query = {
+        // title: {$regex: search, $options: 'i'}
+        title: {$regex: search, $options: 'i'}
+      };
+
       if (status) {
         query.status = status;
       }
@@ -434,8 +441,12 @@ async function run() {
     // get article count
     app.get('/articleCount', async (req, res) => {
       const filter = req.query.filter
+      const search = req.query.search
 
-      let query = {}
+      let query = {
+        // title : {$regex: search, $options: 'i'}
+        title: {$regex: search, $options: 'i'}
+      }
       if (filter) query.publisher = filter;
 
         try {
