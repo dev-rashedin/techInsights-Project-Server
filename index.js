@@ -403,40 +403,132 @@ async function run() {
     });
 
     // get all articles
-    app.get('/articles', async (req, res) => {
-      const page = parseInt(req.query.page) || 0;
-      const size = parseInt(req.query.size) || 6;
-      const status = req.query.status;
-      const filter = req.query.filter;
-      const search = req.query.search
-      console.log(search)
+//     app.get('/articles', async (req, res) => {
+//       const page = parseInt(req.query.page) || 0;
+//       const size = parseInt(req.query.size) || 6;
+//       const status = req.query.status;
+//       const filter = req.query.filter;
+//       const search = req.query.search
+//       const sort = req.query.sort;
+     
+//       let query = {
+//         // title: {$regex: search, $options: 'i'}
+//         title: {$regex: search, $options: 'i'}
+//       };
+
+//       if (status) {
+//         query.status = status;
+//       }
+//       if (filter) {
+//         query.publisher = filter
+//       }
+
+//       let options = {};
+
+//       if (sort) {
+//         options = { sort: {
+// posted_time: sort === 'asc' ? 1 : -1 } };
+//       }
       
 
-      let query = {
-        // title: {$regex: search, $options: 'i'}
-        title: {$regex: search, $options: 'i'}
-      };
-
-      if (status) {
-        query.status = status;
-      }
-      if (filter) {
-        query.publisher = filter
-      }
-      
-      
-      try {
-        const result = await articleCollection
-          .find(query)
-          .skip(page * size)
-          .limit(size)
-          .toArray();
+//      console.log(options)
+           
+//       try {
+//         const result = await articleCollection
+//           .find(query, options)
+//           .skip(page * size)
+//           .limit(size)
+//           .toArray();
         
-        res.send(result);
-      } catch (error) {
-        return res.send(error.message);
-      }
-    });
+//         res.send(result);
+//       } catch (error) {
+//         return res.send(error.message);
+//       }
+    //     });
+    
+   app.get('/articles', async (req, res) => {
+     const page = parseInt(req.query.page) || 0;
+     const size = parseInt(req.query.size) || 6;
+     const status = req.query.status;
+     const filter = req.query.filter;
+     const search = req.query.search;
+     const sort = req.query.sort;
+
+     let query = {
+       title: { $regex: search, $options: 'i' },
+     };
+
+     if (status) {
+       query.status = status;
+     }
+     if (filter) {
+       query.publisher = filter;
+     }
+
+    //  let sortDirection = sort === 'asc' ? 1 : -1;
+
+     try {
+      //  const result = await articleCollection
+      //    .aggregate([
+      //      {
+      //        $match: query,
+      //      },
+      //      {
+      //        $addFields: {
+      //          posted_time_as_date: {
+      //            $dateFromString: {
+      //              dateString: '$posted_time',
+      //              format: '%m/%d/%Y',
+      //              onError: 'Invalid Date', // Add this to detect issues
+      //              onNull: 'No Date', // Handle missing values
+      //            },
+      //          },
+      //        },
+      //      },
+      //      {
+      //        $sort: {
+      //          posted_time_as_date: sortDirection,
+      //        },
+      //      },
+      //      {
+      //        $skip: page * size,
+      //      },
+      //      {
+      //        $limit: size,
+      //      },
+      //    ])
+       //    .toArray();
+       
+       const result = await articleCollection
+         .aggregate([
+           {
+             $match: query,
+           },
+           {
+             $addFields: {
+               posted_time_as_date: {
+                 $dateFromString: {
+                   dateString: '$posted_time',
+                   format: '%m/%d/%Y',
+                   onError: 'Invalid Date', 
+                   onNull: 'No Date'
+                 },
+               },
+             },
+           },
+           {
+             $sort: {posted_time_as_date: sort === 'asc' ? 1 : -1}
+           }
+         ])
+         .toArray();
+
+       res.status(200).send(result);
+     } catch (error) {
+       console.error('Error fetching articles:', error.message);
+       res.status(500).send(error.message);
+     }
+   });
+
 
     // get article count
     app.get('/articleCount', async (req, res) => {
