@@ -105,6 +105,9 @@ async function run() {
     const paymentCollection = client
       .db('techInsightsDB')
       .collection('payments');
+    const langQuizCollection = client
+      .db('techInsightsDB')
+      .collection('voted-languages');
 
     // auth related api
     app.post('/jwt', async (req, res) => {
@@ -454,10 +457,11 @@ async function run() {
      const search = req.query.search;
      const sort = req.query.sort;
 
-     let query = {
-       title: { $regex: search, $options: 'i' },
-     };
+     let query = {};
 
+     if (search) {
+       query.title = { $regex: search, $options: 'i' };
+     }
      if (status) {
        query.status = status;
      }
@@ -465,40 +469,9 @@ async function run() {
        query.publisher = filter;
      }
 
-    //  let sortDirection = sort === 'asc' ? 1 : -1;
 
-     try {
-      //  const result = await articleCollection
-      //    .aggregate([
-      //      {
-      //        $match: query,
-      //      },
-      //      {
-      //        $addFields: {
-      //          posted_time_as_date: {
-      //            $dateFromString: {
-      //              dateString: '$posted_time',
-      //              format: '%m/%d/%Y',
-      //              onError: 'Invalid Date', // Add this to detect issues
-      //              onNull: 'No Date', // Handle missing values
-      //            },
-      //          },
-      //        },
-      //      },
-      //      {
-      //        $sort: {
-      //          posted_time_as_date: sortDirection,
-      //        },
-      //      },
-      //      {
-      //        $skip: page * size,
-      //      },
-      //      {
-      //        $limit: size,
-      //      },
-      //    ])
-       //    .toArray();
-       
+
+     try {    
        const result = await articleCollection
          .aggregate([
            {
@@ -518,6 +491,12 @@ async function run() {
            },
            {
              $sort: {posted_time_as_date: sort === 'asc' ? 1 : -1}
+           },
+           {
+             $skip: page * size
+           },
+           {
+             $limit: size
            }
          ])
          .toArray();
@@ -542,7 +521,7 @@ async function run() {
       if (filter) query.publisher = filter;
 
         try {
-          const allArticles = await articleCollection.countDocuments();
+          const allArticles = await articleCollection.countDocuments(query);
           const approvedArticles = await articleCollection.countDocuments({ status: 'approved', ...query })
         
           res
@@ -732,6 +711,54 @@ async function run() {
         }
       }
     });
+
+    // get vote count
+    app.get('/lang-quiz', async (req, res) => {
+      const totalVotes = await langQuizCollection.countDocuments()
+     
+      const languageVotes = await langQuizCollection.aggregate([
+        {
+          $group: {
+            _id: '$votedLang',
+            votes: {$sum: 1}
+          }
+        },
+        {
+          $sort: {votes: -1}
+        },
+        {
+          $project: {
+            _id: 0,
+            language: '$_id',
+            votes: 1
+          }
+        }
+      ]).toArray()
+
+      res.status(200).send({totalVotes, languageVotes})
+    })
+
+    // get a single users vote
+    app.get('/lang-quiz/:email', async (req, res) => {
+      const email = req.params.email;
+      const result = await langQuizCollection.findOne({ voterEmail: email });
+
+      res.send(result)
+    })
+
+    // post a lang quiz vote
+    app.post('/lang-quiz', async (req, res) => {
+      const voteInfo = req.body;
+      const query = {voterEmail: voteInfo.voterEmail}
+      
+      const existingVote = await langQuizCollection.findOne(query);
+
+      if (!existingVote) {
+        const result = await langQuizCollection.insertOne(voteInfo);
+        res.status(200).send(result)
+      }
+        res.send('You have already voted for this')
+    })
 
     // stripe
     app.post('/create-payment-intent', async (req, res) => {
