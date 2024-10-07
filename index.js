@@ -550,7 +550,16 @@ async function run() {
       }
     });
 
-    // get approved article
+    // get premium article
+    app.get('/premium-articles', async (req, res) => {
+      try {
+     
+       const result = await articleCollection.find({isPremium : 'yes'}).toArray();
+       res.status(200).send(result)
+     } catch (error) {
+      res.status(500).send({message: 'Error Fetching Data'})
+     }
+    })
 
     // get recent articles
     app.get('/recent-articles', async (req, res) => {
