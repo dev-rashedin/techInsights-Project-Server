@@ -108,6 +108,9 @@ async function run() {
     const langQuizCollection = client
       .db('techInsightsDB')
       .collection('voted-languages');
+    const sectorQuizCollection = client
+      .db('techInsightsDB')
+      .collection('voted-sectors');
 
     // auth related api
     app.post('/jwt', async (req, res) => {
@@ -179,7 +182,7 @@ async function run() {
     // create or update user
     app.put('/users', async (req, res) => {
       const user = req.body;
-      
+
       const query = { email: user.email };
       const options = { upsert: true };
 
@@ -207,8 +210,9 @@ async function run() {
             });
             sendEmail(user?.email, {
               subject: 'Congratulation for Adminship',
-              message: 'You are now an admin of our TechInsights website. Please follow the community rules.'
-            })
+              message:
+                'You are now an admin of our TechInsights website. Please follow the community rules.',
+            });
             return res.send(result);
           }
 
@@ -221,13 +225,13 @@ async function run() {
                 subscription: 'usual',
               },
             });
-             sendEmail(user?.email, {
-               subject: 'Adminship cancelled',
-               message:
-                 'You are now no longer an admin of our TechInsights website. Please reach out us to know more.',
-             });
+            sendEmail(user?.email, {
+              subject: 'Adminship cancelled',
+              message:
+                'You are now no longer an admin of our TechInsights website. Please reach out us to know more.',
+            });
             return res.send(result);
-          }          
+          }
 
           // if existing user try to buy subscription
           if (user.subscription === 'premium') {
@@ -259,14 +263,14 @@ async function run() {
           updateDoc,
           options
         );
-       
+
         // send email
         sendEmail(user?.email, {
           subject: 'Welcome to TechInsights',
-          message: `Dear friend, your registration in TechInsights website is successful. Stay connected with us, hope you'll enjoy the journey.`
-        })
+          message: `Dear friend, your registration in TechInsights website is successful. Stay connected with us, hope you'll enjoy the journey.`,
+        });
 
-         res.send(result);
+        res.send(result);
       } catch (error) {
         return res.send(error);
       }
@@ -313,31 +317,35 @@ async function run() {
       // const totalViews = articles.reduce((views, article) => views + article.view_count ,0)
 
       // get article collection
-      const result = await articleCollection.aggregate([
-        {
-          $group: {
-            _id: null,
-            totalViews : {$sum: '$view_count'}
-        }}
-      ]).next()
-
-// get articles by publishers
-      const articleByPublisher = await articleCollection.aggregate([
-        {
-          $group: {
-            _id: '$publisher',
-            count: { $sum: 1 }
+      const result = await articleCollection
+        .aggregate([
+          {
+            $group: {
+              _id: null,
+              totalViews: { $sum: '$view_count' },
+            },
           },
-        },
-        {
-          $project: {
-            publisher: '$_id',
-            count: 1,
-            _id: 0
-          }
-        }
-        
-      ]).toArray()
+        ])
+        .next();
+
+      // get articles by publishers
+      const articleByPublisher = await articleCollection
+        .aggregate([
+          {
+            $group: {
+              _id: '$publisher',
+              count: { $sum: 1 },
+            },
+          },
+          {
+            $project: {
+              publisher: '$_id',
+              count: 1,
+              _id: 0,
+            },
+          },
+        ])
+        .toArray();
 
       // get subscription count
       const subscriptionCount = await userCollection
@@ -358,12 +366,22 @@ async function run() {
         ])
         .toArray();
 
-      const publishedArticle = await articleCollection.countDocuments({status: 'approved'})
+      const publishedArticle = await articleCollection.countDocuments({
+        status: 'approved',
+      });
 
       const totalViews = result ? result.totalViews : 0;
 
-      res.send({ totalUsers, totalArticles, totalPublishers, totalViews, publishedArticle, articleByPublisher, subscriptionCount });
-    })
+      res.send({
+        totalUsers,
+        totalArticles,
+        totalPublishers,
+        totalViews,
+        publishedArticle,
+        articleByPublisher,
+        subscriptionCount,
+      });
+    });
 
     // updating user profile
     app.patch('/users/:email', verifyToken, async (req, res) => {
@@ -406,133 +424,131 @@ async function run() {
     });
 
     // get all articles
-//     app.get('/articles', async (req, res) => {
-//       const page = parseInt(req.query.page) || 0;
-//       const size = parseInt(req.query.size) || 6;
-//       const status = req.query.status;
-//       const filter = req.query.filter;
-//       const search = req.query.search
-//       const sort = req.query.sort;
-     
-//       let query = {
-//         // title: {$regex: search, $options: 'i'}
-//         title: {$regex: search, $options: 'i'}
-//       };
+    //     app.get('/articles', async (req, res) => {
+    //       const page = parseInt(req.query.page) || 0;
+    //       const size = parseInt(req.query.size) || 6;
+    //       const status = req.query.status;
+    //       const filter = req.query.filter;
+    //       const search = req.query.search
+    //       const sort = req.query.sort;
 
-//       if (status) {
-//         query.status = status;
-//       }
-//       if (filter) {
-//         query.publisher = filter
-//       }
+    //       let query = {
+    //         // title: {$regex: search, $options: 'i'}
+    //         title: {$regex: search, $options: 'i'}
+    //       };
 
-//       let options = {};
+    //       if (status) {
+    //         query.status = status;
+    //       }
+    //       if (filter) {
+    //         query.publisher = filter
+    //       }
 
-//       if (sort) {
-//         options = { sort: {
-// posted_time: sort === 'asc' ? 1 : -1 } };
-//       }
-      
+    //       let options = {};
 
-//      console.log(options)
-           
-//       try {
-//         const result = await articleCollection
-//           .find(query, options)
-//           .skip(page * size)
-//           .limit(size)
-//           .toArray();
-        
-//         res.send(result);
-//       } catch (error) {
-//         return res.send(error.message);
-//       }
+    //       if (sort) {
+    //         options = { sort: {
+    // posted_time: sort === 'asc' ? 1 : -1 } };
+    //       }
+
+    //      console.log(options)
+
+    //       try {
+    //         const result = await articleCollection
+    //           .find(query, options)
+    //           .skip(page * size)
+    //           .limit(size)
+    //           .toArray();
+
+    //         res.send(result);
+    //       } catch (error) {
+    //         return res.send(error.message);
+    //       }
     //     });
-    
-   app.get('/articles', async (req, res) => {
-     const page = parseInt(req.query.page) || 0;
-     const size = parseInt(req.query.size) || 6;
-     const status = req.query.status;
-     const filter = req.query.filter;
-     const search = req.query.search;
-     const sort = req.query.sort;
 
-     let query = {};
+    app.get('/articles', async (req, res) => {
+      const page = parseInt(req.query.page) || 0;
+      const size = parseInt(req.query.size) || 6;
+      const status = req.query.status;
+      const filter = req.query.filter;
+      const search = req.query.search;
+      const sort = req.query.sort;
 
-     if (search) {
-       query.title = { $regex: search, $options: 'i' };
-     }
-     if (status) {
-       query.status = status;
-     }
-     if (filter) {
-       query.publisher = filter;
-     }
+      let query = {};
 
+      if (search) {
+        query.title = { $regex: search, $options: 'i' };
+      }
+      if (status) {
+        query.status = status;
+      }
+      if (filter) {
+        query.publisher = filter;
+      }
 
+      try {
+        const result = await articleCollection
+          .aggregate([
+            {
+              $match: query,
+            },
+            {
+              $addFields: {
+                posted_time_as_date: {
+                  $dateFromString: {
+                    dateString: '$posted_time',
+                    format: '%m/%d/%Y',
+                    onError: 'Invalid Date',
+                    onNull: 'No Date',
+                  },
+                },
+              },
+            },
+            {
+              $sort: { posted_time_as_date: sort === 'asc' ? 1 : -1 },
+            },
+            {
+              $skip: page * size,
+            },
+            {
+              $limit: size,
+            },
+          ])
+          .toArray();
 
-     try {    
-       const result = await articleCollection
-         .aggregate([
-           {
-             $match: query,
-           },
-           {
-             $addFields: {
-               posted_time_as_date: {
-                 $dateFromString: {
-                   dateString: '$posted_time',
-                   format: '%m/%d/%Y',
-                   onError: 'Invalid Date', 
-                   onNull: 'No Date'
-                 },
-               },
-             },
-           },
-           {
-             $sort: {posted_time_as_date: sort === 'asc' ? 1 : -1}
-           },
-           {
-             $skip: page * size
-           },
-           {
-             $limit: size
-           }
-         ])
-         .toArray();
-
-       res.status(200).send(result);
-     } catch (error) {
-       console.error('Error fetching articles:', error.message);
-       res.status(500).send(error.message);
-     }
-   });
-
+        res.status(200).send(result);
+      } catch (error) {
+        console.error('Error fetching articles:', error.message);
+        res.status(500).send(error.message);
+      }
+    });
 
     // get article count
     app.get('/articleCount', async (req, res) => {
-      const filter = req.query.filter
-      const search = req.query.search
+      const filter = req.query.filter;
+      const search = req.query.search;
 
       let query = {
         // title : {$regex: search, $options: 'i'}
-        title: {$regex: search, $options: 'i'}
-      }
+        title: { $regex: search, $options: 'i' },
+      };
       if (filter) query.publisher = filter;
 
-        try {
-          const allArticles = await articleCollection.countDocuments(query);
-          const approvedArticles = await articleCollection.countDocuments({ status: 'approved', ...query })
-        
-          res
-            .status(200)
-            .send(
-              { allArticles: allArticles, approvedArticles: approvedArticles }
-            );
-        } catch (error) {
-          return res.status(500).send({error: error.message});
-        }
-    })
+      try {
+        const allArticles = await articleCollection.countDocuments(query);
+        const approvedArticles = await articleCollection.countDocuments({
+          status: 'approved',
+          ...query,
+        });
+
+        res.status(200).send({
+          allArticles: allArticles,
+          approvedArticles: approvedArticles,
+        });
+      } catch (error) {
+        return res.status(500).send({ error: error.message });
+      }
+    });
 
     // get approved article
 
@@ -694,8 +710,8 @@ async function run() {
     // save a decline message
     app.post('/message/:id', async (req, res) => {
       const id = req.params.id;
-      console.log(id)
-      
+      console.log(id);
+
       const message = req.body;
 
       const query = { _id: new ObjectId(id) };
@@ -714,51 +730,103 @@ async function run() {
 
     // get vote count
     app.get('/lang-quiz', async (req, res) => {
-      const totalVotes = await langQuizCollection.countDocuments()
-     
-      const languageVotes = await langQuizCollection.aggregate([
-        {
-          $group: {
-            _id: '$votedLang',
-            votes: {$sum: 1}
-          }
-        },
-        {
-          $sort: {votes: -1}
-        },
-        {
-          $project: {
-            _id: 0,
-            language: '$_id',
-            votes: 1
-          }
-        }
-      ]).toArray()
+      const totalVotes = await langQuizCollection.countDocuments();
 
-      res.status(200).send({totalVotes, languageVotes})
-    })
+      const languageVotes = await langQuizCollection
+        .aggregate([
+          {
+            $group: {
+              _id: '$votedLang',
+              votes: { $sum: 1 },
+            },
+          },
+          {
+            $sort: { votes: -1 },
+          },
+          {
+            $project: {
+              _id: 0,
+              language: '$_id',
+              votes: 1,
+            },
+          },
+        ])
+        .toArray();
+
+      res.status(200).send({ totalVotes, languageVotes });
+    });
 
     // get a single users vote
     app.get('/lang-quiz/:email', async (req, res) => {
       const email = req.params.email;
       const result = await langQuizCollection.findOne({ voterEmail: email });
 
-      res.send(result)
-    })
+      res.send(result);
+    });
 
     // post a lang quiz vote
     app.post('/lang-quiz', async (req, res) => {
       const voteInfo = req.body;
-      const query = {voterEmail: voteInfo.voterEmail}
-      
+      const query = { voterEmail: voteInfo.voterEmail };
+
       const existingVote = await langQuizCollection.findOne(query);
 
       if (!existingVote) {
         const result = await langQuizCollection.insertOne(voteInfo);
-        res.status(200).send(result)
+        res.status(200).send(result);
       }
-        res.send('You have already voted for this')
-    })
+      res.send('You have already voted for this');
+    });
+
+    // get demanding sector vote count
+    app.get('/demanding-sector', async (req, res) => {
+      const totalVotes = await sectorQuizCollection.countDocuments();
+
+      const demandingSectors = await sectorQuizCollection
+        .aggregate([
+          {
+            $group: {
+              _id: '$votedOption',
+              votes: { $sum: 1 },
+            },
+          },
+          {
+            $sort: { votes: -1 },
+          },
+          {
+            $project: {
+              _id: 0,
+              sector: '$_id',
+              votes: 1,
+            },
+          },
+        ])
+        .toArray();
+
+      res.status(200).send({ totalVotes, demandingSectors });
+    });
+
+    // get a single users vote
+    app.get('/demanding-sector/:email', async (req, res) => {
+      const email = req.params.email;
+      const result = await sectorQuizCollection.findOne({ voterEmail: email });
+
+      res.send(result);
+    });
+
+    // post a demanding sector vote
+    app.post('/demanding-sector', async (req, res) => {
+      const voteInfo = req.body;
+      const query = { voterEmail: voteInfo.voterEmail };
+
+      const existingVote = await sectorQuizCollection.findOne(query);
+
+      if (!existingVote) {
+        const result = await sectorQuizCollection.insertOne(voteInfo);
+        res.status(200).send(result);
+      }
+      res.send('You have already voted for this');
+    });
 
     // stripe
     app.post('/create-payment-intent', async (req, res) => {
@@ -794,7 +862,7 @@ async function run() {
 
         res.status(200).send(paymentResult);
       } catch (error) {
-        console.error(error)
+        console.error(error);
       }
     });
 
