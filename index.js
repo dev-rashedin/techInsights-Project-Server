@@ -180,7 +180,7 @@ async function run() {
     });
 
     // create or update user
-    app.put('/users', async (req, res) => {
+    app.put('/users', async (req, res) => {0
       const user = req.body;
 
       const query = { email: user.email };
@@ -576,7 +576,7 @@ async function run() {
     });
 
     // get single article by id
-    app.get('/articles/:id', verifyToken, async (req, res) => {
+    app.get('/articles/:id', async (req, res) => {
       const id = req.params.id;
 
       const query = { _id: new ObjectId(id) };
