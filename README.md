@@ -8,6 +8,7 @@ A simple news website focused on technology, programming and web development, cr
 
 # Features & Characteristics
 -  MongoDB Database
+-  Mongoose ODM
 -  CRUD Functionality
 -  MongoDB Aggregate Pipeline
 -  JWT Authentication
