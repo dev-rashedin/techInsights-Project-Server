@@ -2,11 +2,13 @@ import { NotFoundError } from "express-error-toolkit";
 import { User, IUser } from "../model/users.model";
 
 // fetch all users from database
-export const getAllUsers = async (): Promise<IUser[]> => {
+export const fetchAllUsers = async (): Promise<IUser[]> => {
   return await User.find();
 };
 
-export const getUserByEmail = async (email: string): Promise<IUser | null> => {
+export const fetchUserByEmail = async (
+  email: string,
+): Promise<IUser | null> => {
   const result = await User.findOne({ email });
   if (!result) throw new NotFoundError("user not found");
   return result;
