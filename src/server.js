@@ -1,6 +1,10 @@
 const app = require('./app');
-const port = process.env.PORT || 3006;
+const config = require('./config/config');
+const connectDB = require('./config/connectDB');
 
-app.listen(port, () => {
-  console.log(`The-Tech-Insight server is running on port: ${port}`);
+
+connectDB()
+
+app.listen(config.port, () => {
+  console.log(`The-Tech-Insight server is running on port: ${config.port}`);
 });

@@ -1,10 +1,9 @@
-import dotenv from 'dotenv';
-
+const dotenv = require('dotenv');
 dotenv.config();
 
 // Load environment variables
-export const config = {
-  port: process.env.PORT || 5000,
+const config = {
+  port: process.env.PORT || 3008,
   dbUser: process.env.DB_USER,
   dbPassword: process.env.DB_PASSWORD,
   accessTokenSecret: process.env.ACCESS_TOKEN_SECRET,
@@ -12,3 +11,5 @@ export const config = {
   transporterEmail: process.env.TRANSPORTER_EMAIL,
   transporterPass: process.env.TRANSPORTER_PASS,
 };
+
+module.exports = config;
