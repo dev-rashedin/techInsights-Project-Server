@@ -4,7 +4,7 @@ const app = express();
 const cors = require('cors');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const jwt = require('jsonwebtoken');
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 3000;
 
 const cron = require('node-cron');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
@@ -892,5 +892,5 @@ app.get('/', (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log('The-Tech-Insight server is running');
+  console.log(`The-Tech-Insight server is running on port: ${port}`);
 });
