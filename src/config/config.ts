@@ -1,4 +1,4 @@
-const dotenv = require('dotenv');
+import dotenv from 'dotenv'
 dotenv.config();
 
 // Load environment variables
@@ -12,4 +12,4 @@ const config = {
   transporterPass: process.env.TRANSPORTER_PASS,
 };
 
-module.exports = config;
+export default config;

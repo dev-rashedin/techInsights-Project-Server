@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
-    "target": "ES6", // or "ES2020" if you're using modern Node
-    "module": "CommonJS", // <-- Use CommonJS for require/module.exports
+    "target": "ES6",
+    "module": "esnext",
     "moduleResolution": "node",
     "declaration": true,
     "declarationDir": "dist",
