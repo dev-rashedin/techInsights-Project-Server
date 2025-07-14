@@ -1,4 +1,4 @@
-const User = require('../model/User');
+const User = require("../model/User");
 
 const getAllUsers = async () => {
   return await User.find();
@@ -12,7 +12,7 @@ const upsertUser = async (userData) => {
   return await User.findOneAndUpdate(
     { email: userData.email },
     { $set: userData },
-    { upsert: true, new: true }
+    { upsert: true, new: true },
   );
 };
 
