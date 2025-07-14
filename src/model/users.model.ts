@@ -1,28 +1,38 @@
-import { Schema, model, Document } from "mongoose";
+import { Schema, Document, model } from "mongoose";
 
+// 1. TypeScript interface for User
 export interface IUser extends Document {
-  name?: string;
   email: string;
-  role?: string;
-  status?: string;
-  subscription?: string;
-  premiumToken?: number | null;
-  // Add other fields as needed
+  displayName: string;
+  photoURL: string;
+  premiumToken: string | null;
+  role: "user" | "admin";
+  status: "verified" | "requested" | "banned";
+  subscription: "usual" | "premium";
 }
 
-const userSchema = new Schema<IUser>(
-  {
-    name: { type: String },
-    email: { type: String, required: true, unique: true },
-    role: { type: String, default: "user" },
-    status: { type: String, default: "verified" },
-    subscription: { type: String, default: "usual" },
-    premiumToken: { type: Number, default: null },
-    // Add other fields as needed
+// 2. Mongoose schema definition
+const userSchema: Schema<IUser> = new Schema<IUser>({
+  email: { type: String, required: true, unique: true },
+  displayName: { type: String, required: true },
+  photoURL: { type: String, required: true },
+  premiumToken: { type: String, default: null },
+  role: {
+    type: String,
+    enum: ["user", "admin"],
+    default: "user",
   },
-  { timestamps: true },
-);
+  status: {
+    type: String,
+    enum: ["verified", "requested", "banned"],
+    default: "verified",
+  },
+  subscription: {
+    type: String,
+    enum: ["usual", "premium"],
+    default: "usual",
+  },
+});
 
-const User = model<IUser>("User", userSchema);
-
-export default User;
+// 3. Model export
+export const User = model<IUser>("User", userSchema);

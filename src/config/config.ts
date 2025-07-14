@@ -3,7 +3,7 @@ dotenv.config();
 
 // Load environment variables
 const config = {
-  port: process.env.PORT || 3008,
+  port: process.env.PORT || 3000,
   dbUser: process.env.DB_USER,
   dbPassword: process.env.DB_PASSWORD,
   accessTokenSecret: process.env.ACCESS_TOKEN_SECRET,

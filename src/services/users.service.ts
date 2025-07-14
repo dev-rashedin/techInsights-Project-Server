@@ -1,4 +1,4 @@
-import User, { IUser } from "../model/users.model";
+import { User, IUser } from "../model/users.model";
 
 export const getAllUsers = async (): Promise<IUser[]> => {
   return await User.find();

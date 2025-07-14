@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import * as userService from "../services/users.service";
 
+// fetch all users
 export const getAllUsers = async (req: Request, res: Response) => {
   try {
     const users = await userService.getAllUsers();

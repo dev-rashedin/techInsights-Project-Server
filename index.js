@@ -10,7 +10,7 @@ import { MongoClient, ServerApiVersion, ObjectId } from 'mongodb';
 
 import jwt from 'jsonwebtoken';
 
-const port = process.env.PORT || 3000;
+const port = 5000;
 
 import cron from 'node-cron';
 
