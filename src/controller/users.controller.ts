@@ -1,25 +1,26 @@
 import { Request, Response } from "express";
 import * as userService from "../services/users.service";
+import {
+  asyncHandler,
+  BadRequestError,
+  NotFoundError,
+} from "express-error-toolkit";
 
 // fetch all users
-export const getAllUsers = async (req: Request, res: Response) => {
-  try {
-    const users = await userService.getAllUsers();
-    res.send(users);
-  } catch (error) {
-    res.status(500).send(error);
-  }
-};
+export const getAllUsers = asyncHandler(async (req: Request, res: Response) => {
+  const users = await userService.getAllUsers();
+  if (!users || users.length === 0) throw new NotFoundError("users not found");
+  res.send(users);
+});
 
-export const getUserByEmail = async (req: Request, res: Response) => {
-  try {
+export const getUserByEmail = asyncHandler(
+  async (req: Request, res: Response) => {
     const email = req.params.email;
+    if (!email) throw new BadRequestError("email is required");
     const user = await userService.getUserByEmail(email);
     res.send(user);
-  } catch (error) {
-    res.status(500).send(error);
-  }
-};
+  },
+);
 
 export const upsertUser = async (req: Request, res: Response) => {
   try {

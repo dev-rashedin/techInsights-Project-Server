@@ -1,6 +1,3 @@
-// const mongoose = require('mongoose');
-// const config = require('./config');
-
 import mongoose from "mongoose";
 import config from "./config";
 
@@ -10,8 +7,12 @@ const connectDB = async () => {
   try {
     await mongoose.connect(mongoURI);
     console.log("✅ Connected to MongoDB");
-  } catch (err: string) {
-    console.error("❌ MongoDB connection failed:", err.message);
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      console.error("❌ MongoDB connection failed:", err.message);
+    } else {
+      console.error("❌ MongoDB connection failed:", err);
+    }
     process.exit(1);
   }
 };
