@@ -4,3 +4,5 @@ import { getAllUsers } from "../controller/users.controller";
 const userRouter = express.Router();
 
 userRouter.get("/", getAllUsers);
+
+export default userRouter;

@@ -4,6 +4,7 @@ import {
   notFoundHandler,
   StatusCodes,
 } from "express-error-toolkit";
+import userRouter from "./routes/users.route";
 
 const app: Application = express();
 const cors = require("cors");
@@ -11,6 +12,8 @@ const cors = require("cors");
 app.use(express.json());
 
 app.use(cors());
+
+app.use("/users", userRouter);
 
 // home route
 app.get("/", (req: Request, res: Response) => {
