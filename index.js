@@ -1,15 +1,25 @@
-require('dotenv').config();
-const express = require('express');
+import dotenv from 'dotenv';
+dotenv.config();
+
+import express from 'express';
 const app = express();
-const cors = require('cors');
-const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
-const jwt = require('jsonwebtoken');
+
+import cors from 'cors';
+
+import { MongoClient, ServerApiVersion, ObjectId } from 'mongodb';
+
+import jwt from 'jsonwebtoken';
+
 const port = process.env.PORT || 3000;
 
-const cron = require('node-cron');
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-const nodemailer = require('nodemailer');
+import cron from 'node-cron';
 
+import Stripe from 'stripe';
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+  apiVersion: '2024-04-10', // specify the latest Stripe version you're using
+});
+
+import nodemailer from 'nodemailer';
 
 // middleware
 const corsOptions = {
@@ -23,7 +33,6 @@ const corsOptions = {
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   optionSuccessStatus: 200,
 };
-
 
 app.use(cors(corsOptions));
 app.use(express.json());
@@ -66,7 +75,7 @@ const sendEmail = (emailAddress, emailData) => {
   });
 
   console.log('Message sent: %s', info.messageId);
-}
+};
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.4qgkjzt.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
@@ -76,7 +85,6 @@ const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@clu
 let client;
 
 async function run() {
-
   if (!client) {
     // Create a new MongoClient if it doesn't exist
     client = new MongoClient(uri, {
@@ -180,7 +188,8 @@ async function run() {
     });
 
     // create or update user
-    app.put('/users', async (req, res) => {0
+    app.put('/users', async (req, res) => {
+      0;
       const user = req.body;
 
       const query = { email: user.email };
@@ -553,13 +562,14 @@ async function run() {
     // get premium article
     app.get('/premium-articles', async (req, res) => {
       try {
-     
-       const result = await articleCollection.find({isPremium : 'yes'}).toArray();
-       res.status(200).send(result)
-     } catch (error) {
-      res.status(500).send({message: 'Error Fetching Data'})
-     }
-    })
+        const result = await articleCollection
+          .find({ isPremium: 'yes' })
+          .toArray();
+        res.status(200).send(result);
+      } catch (error) {
+        res.status(500).send({ message: 'Error Fetching Data' });
+      }
+    });
 
     // get recent articles
     app.get('/recent-articles', async (req, res) => {
