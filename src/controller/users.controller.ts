@@ -4,13 +4,19 @@ import {
   asyncHandler,
   BadRequestError,
   NotFoundError,
+  StatusCodes,
 } from "express-error-toolkit";
 
 // fetch all users
 export const getAllUsers = asyncHandler(async (req: Request, res: Response) => {
   const users = await userService.getAllUsers();
   if (!users || users.length === 0) throw new NotFoundError("users not found");
-  res.send(users);
+  res.status(StatusCodes.OK).json({
+    success: true,
+    message: "users fetched successfully",
+    count: users.length,
+    data: users,
+  });
 });
 
 export const getUserByEmail = asyncHandler(
@@ -18,7 +24,11 @@ export const getUserByEmail = asyncHandler(
     const email = req.params.email;
     if (!email) throw new BadRequestError("email is required");
     const user = await userService.getUserByEmail(email);
-    res.send(user);
+    res.status(StatusCodes.OK).json({
+      success: true,
+      message: `user with email ${email} fetched successfully`,
+      data: user,
+    });
   },
 );
 
