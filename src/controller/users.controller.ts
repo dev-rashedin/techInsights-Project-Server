@@ -1,7 +1,7 @@
-const userService = require("../services/userService");
+import { Request, Response } from "express";
+import * as userService from "../services/users.service";
 
-// Example: Get all users
-const getAllUsers = async (req, res) => {
+export const getAllUsers = async (req: Request, res: Response) => {
   try {
     const users = await userService.getAllUsers();
     res.send(users);
@@ -10,8 +10,7 @@ const getAllUsers = async (req, res) => {
   }
 };
 
-// Example: Get user by email
-const getUserByEmail = async (req, res) => {
+export const getUserByEmail = async (req: Request, res: Response) => {
   try {
     const email = req.params.email;
     const user = await userService.getUserByEmail(email);
@@ -21,8 +20,7 @@ const getUserByEmail = async (req, res) => {
   }
 };
 
-// Example: Upsert user
-const upsertUser = async (req, res) => {
+export const upsertUser = async (req: Request, res: Response) => {
   try {
     const userData = req.body;
     const user = await userService.upsertUser(userData);
@@ -32,8 +30,7 @@ const upsertUser = async (req, res) => {
   }
 };
 
-// Example: Update user by email
-const updateUserByEmail = async (req, res) => {
+export const updateUserByEmail = async (req: Request, res: Response) => {
   try {
     const email = req.params.email;
     const updateData = req.body;
@@ -42,11 +39,4 @@ const updateUserByEmail = async (req, res) => {
   } catch (error) {
     res.status(500).send(error);
   }
-};
-
-module.exports = {
-  getAllUsers,
-  getUserByEmail,
-  upsertUser,
-  updateUserByEmail,
 };
