@@ -1,14 +1,14 @@
-import { Schema, Document, model } from 'mongoose'
+import { Schema, Document, model } from 'mongoose';
 
 // 1. TypeScript interface for User
 export interface IUser extends Document {
-  email: string
-  displayName: string
-  photoURL: string
-  premiumToken: string | null
-  role: 'user' | 'admin'
-  status: 'verified' | 'requested' | 'banned'
-  subscription: 'usual' | 'premium'
+  email: string;
+  displayName: string;
+  photoURL: string;
+  premiumToken: string | null;
+  role: 'user' | 'admin';
+  status: 'verified' | 'requested' | 'banned';
+  subscription: 'usual' | 'premium';
 }
 
 // 2. Mongoose schema definition
@@ -32,7 +32,7 @@ const userSchema: Schema<IUser> = new Schema<IUser>({
     enum: ['usual', 'premium'],
     default: 'usual',
   },
-})
+});
 
 // 3. Model export
-export const User = model<IUser>('User', userSchema)
+export const User = model<IUser>('User', userSchema);
