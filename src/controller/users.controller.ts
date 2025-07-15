@@ -32,7 +32,7 @@ export const getUserByEmail = asyncHandler(
   },
 );
 
-export const createOrUpdateUser = asyncHandler(
+export const addOrEditUser = asyncHandler(
   async (req: Request, res: Response) => {
     const user = req.body;
 
@@ -40,9 +40,12 @@ export const createOrUpdateUser = asyncHandler(
       throw new BadRequestError('user data and email are required');
     }
 
+     const result = await userService.createOrUpdateUser(req.body);
+
     res.status(StatusCodes.CREATED).json({
       success: true,
       message: 'user created or updated successfully',
+      data: result,
     });
   },
 );

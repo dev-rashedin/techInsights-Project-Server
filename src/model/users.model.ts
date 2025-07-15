@@ -24,6 +24,7 @@ const userSchema: Schema<IUser> = new Schema<IUser>({
     enum: ['usual', 'premium'],
     default: 'usual',
   },
+  
 });
 
 // 3. Model export

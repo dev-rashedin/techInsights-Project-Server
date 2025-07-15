@@ -22,6 +22,9 @@ export const createOrUpdateUser = async (user: IUserWithValidation) => {
 
   const existingUser = await User.findOne(query);
 
+  console.log('existingUser', existingUser);
+  
+
   if (existingUser) {
     // 1. User status: "requested"
     if (user.status === 'requested') {

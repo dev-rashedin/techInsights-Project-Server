@@ -42,7 +42,7 @@ const sendEmail = (emailAddress: string, emailData: EmailData) => {
       console.log('Email Sent ' + info.response);
     }
   });
-  console.log('Message sent: %s', info.messageId);
+  console.log('Message sent: %s', info);
 
 };
 
