@@ -4,8 +4,6 @@ dotenv.config();
 import express from 'express';
 const app = express();
 
-import cors from 'cors';
-
 import { MongoClient, ServerApiVersion, ObjectId } from 'mongodb';
 
 import jwt from 'jsonwebtoken';
@@ -63,15 +61,6 @@ async function run() {
     const sectorQuizCollection = client
       .db('techInsightsDB')
       .collection('voted-sectors');
-
-    // auth related api
-    app.post('/jwt', async (req, res) => {
-      const user = req.body;
-      const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
-        expiresIn: '7d',
-      });
-      res.send({ token });
-    });
 
     // dynamically check user subscription
     cron.schedule('* * * * *', async (req, res) => {

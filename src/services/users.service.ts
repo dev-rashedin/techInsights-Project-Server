@@ -1,11 +1,15 @@
-import { NotFoundError } from 'express-error-toolkit';
+import { CustomAPIError, NotFoundError } from 'express-error-toolkit';
 import { User, } from '../model/users.model';
 import sendEmail from '../utils/sendEmail';
 import { IUser, IUserWithValidation } from '../interface/users.interface';
 
 // fetch all users from database
 export const fetchAllUsers = async (): Promise<IUser[]> => {
-  return await User.find();
+  const result = await User.find();
+  if (!result || result.length === 0) {
+    throw new NotFoundError('No users found');
+  }
+  return result;
 };
 
 export const fetchUserByEmail = async (
@@ -92,5 +96,25 @@ export const createOrUpdateUser = async (user: IUserWithValidation) => {
     message: `Dear friend, your registration in TechInsights website is successful. Stay connected with us, hope you'll enjoy the journey.`,
   });
 
+  if(!result || result.modifiedCount === 0) {
+    throw new CustomAPIError('User creation failed');
+  }
+
+  return result;
+};
+
+
+
+export const updateUserProfileService = async (
+  email: string,
+  updatedUserInfo: Partial<typeof User>,
+) => {
+  const filter = { email };
+  const updateDoc = { $set: { ...updatedUserInfo } };
+  const result = await User.updateOne(filter, updateDoc);
+
+  if (result.modifiedCount === 0) {
+    throw new NotFoundError('User not found or no changes made');
+  }
   return result;
 };
