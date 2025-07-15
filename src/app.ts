@@ -9,6 +9,7 @@ import cors from 'cors';
 
 import userRouter from './routes/users.route';
 import authRouter from './routes/auth.route';
+import articlesRouter from './routes/articles.route';
 
 const app: Application = express();
 
@@ -31,6 +32,7 @@ app.use(cors(corsOptions));
 // routes
 app.use('/jwt', authRouter)
 app.use('/users', userRouter);
+app.use('/', articlesRouter)
 
 // home route
 app.get('/', (req: Request, res: Response) => {

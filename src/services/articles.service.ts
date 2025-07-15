@@ -1,6 +1,6 @@
 import { Article } from '../model/articles.model';
 
-export const getArticlesService = async (query: any) => {
+export const getArticlesService = async (query) => {
   const page = parseInt(query.page) || 0;
   const size = parseInt(query.size) || 6;
   const { status, filter, search, sort } = query;
