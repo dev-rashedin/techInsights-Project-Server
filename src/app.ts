@@ -4,15 +4,19 @@ import {
   notFoundHandler,
   StatusCodes,
 } from 'express-error-toolkit';
+
+import cors from 'cors';
+
 import userRouter from './routes/users.route';
+import authRouter from './routes/auth.route';
 
 const app: Application = express();
-const cors = require('cors');
 
 app.use(express.json());
-
 app.use(cors());
 
+// routes
+app.use('/jwt', authRouter)
 app.use('/users', userRouter);
 
 // home route
