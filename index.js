@@ -189,7 +189,6 @@ async function run() {
 
     // create or update user
     app.put('/users', async (req, res) => {
-      0;
       const user = req.body;
 
       const query = { email: user.email };

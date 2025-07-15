@@ -1,5 +1,7 @@
 import { NotFoundError } from 'express-error-toolkit';
-import { User, IUser } from '../model/users.model';
+import { User, } from '../model/users.model';
+import sendEmail from '../utils/sendEmail';
+import { IUser, IUserWithValidation } from '../interface/users.interface';
 
 // fetch all users from database
 export const fetchAllUsers = async (): Promise<IUser[]> => {
@@ -14,7 +16,7 @@ export const fetchUserByEmail = async (
   return result;
 };
 
-export const createOrUpdateUser = async (user: IUser) => {
+export const createOrUpdateUser = async (user: IUserWithValidation) => {
   const query = { email: user.email };
   const options = { upsert: true };
 

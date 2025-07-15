@@ -1,15 +1,7 @@
-import { Schema, Document, model } from 'mongoose';
+import { Schema, model } from 'mongoose';
+import { IUser } from '../interface/users.interface';
 
 // 1. TypeScript interface for User
-export interface IUser extends Document {
-  email: string;
-  displayName: string;
-  photoURL: string;
-  premiumToken: string | null;
-  role: 'user' | 'admin';
-  status: 'verified' | 'requested' | 'remove-admin' | 'banned';
-  subscription: 'usual' | 'premium';
-}
 
 // 2. Mongoose schema definition
 const userSchema: Schema<IUser> = new Schema<IUser>({
