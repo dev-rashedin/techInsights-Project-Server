@@ -5,7 +5,8 @@ import {
   getPremiumArticlesService,
   getRecentArticlesService,
 } from '../services/articles.service';
-import { asyncHandler, BadRequestError } from 'express-error-toolkit';
+import { asyncHandler, BadRequestError, StatusCodes } from 'express-error-toolkit';
+import { getRecentArticlesServiceBanner } from './../services/articles.service';
 
 export const getArticles = asyncHandler(async (req: Request, res: Response) => {
   const query = req.query;
@@ -29,6 +30,20 @@ export const getPremiumArticles = asyncHandler(async (_req: Request, res: Respon
 export const getRecentArticles = asyncHandler(async (_req: Request, res: Response) => {
 
     const result = await getRecentArticlesService();
-    res.status(200).send(result);
+  res.status(StatusCodes.OK).json({
+    success: true,
+    message: 'Recent articles fetched successfully',
+    data: result,
+    })
+ 
+})
+export const getRecentArticlesBanner = asyncHandler(async (_req: Request, res: Response) => {
+
+    const result = await getRecentArticlesServiceBanner();
+  res.status(StatusCodes.OK).json({
+    success: true,
+    message: 'Recent articles for banner fetched successfully',
+    data: result,
+  });
  
 })

@@ -97,3 +97,34 @@ export const getRecentArticlesService = async () => {
 
   return articles;
 };
+
+export const getRecentArticlesServiceBanner = async () => {
+  const articles = await Article.aggregate([
+    {
+      $addFields: {
+        posted_time_as_date: {
+        $dateFromString: {
+            dateString: '$posted_time',
+            format: '%m/%d/%Y',
+            onError: null,
+          onNull: null,
+        }
+      }
+      }
+    },
+    { $sort: { posted_time_as_date: -1 } }, 
+    { $limit: 6 },
+    {
+      $project: {
+        _id: 1,
+        title: 1,
+        description: 1,
+        image_url: 1,
+        tags: 1,
+        posted_time: 1,
+        publisher: 1,
+    }},
+  ]);
+
+  return articles;
+};
