@@ -168,25 +168,6 @@ async function run() {
         subscriptionCount,
       });
     });
-
-    // updating user profile
-    app.patch('/users/:email', verifyToken, async (req, res) => {
-      const updatedUserInfo = req.body;
-      const email = req.params.email;
-
-      const filter = { email };
-      const updateDoc = {
-        $set: { ...updatedUserInfo },
-      };
-
-      try {
-        const result = await userCollection.updateOne(filter, updateDoc);
-        res.send(result);
-      } catch (error) {
-        return res.send(result);
-      }
-    });
-
     // get all the publisher
     app.get('/publishers', async (req, res) => {
       try {

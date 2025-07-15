@@ -12,6 +12,6 @@ userRouter.get('/:email', getUserByEmail);
 
 userRouter.put('/', addOrEditUser);
 
-userRouter.patch('/users/:email', verifyToken, updateUserProfile);
+userRouter.patch('/:email', verifyToken, updateUserProfile);
 
 export default userRouter;

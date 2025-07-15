@@ -57,7 +57,10 @@ export const addOrEditUser = asyncHandler(
 export const updateUserProfile = asyncHandler(async (req: Request, res: Response) => {
   const email = req.params.email;
   const updatedUserInfo = req.body;
-  if(!email || !updatedUserInfo) throw new BadRequestError('Email and updated user info are required');
+  if (!email || !updatedUserInfo) throw new BadRequestError('Email and updated user info are required');
+  
+  console.log(email, updatedUserInfo);
+  
 
   const result = await userService.updateUserProfileService(email, updatedUserInfo);
   

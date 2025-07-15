@@ -21,6 +21,7 @@ const corsOptions = {
   ],
   // credentials: true,
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  allowedHeaders: ['Content-Type', 'Authorization'],
   optionSuccessStatus: 200,
 };
 
@@ -38,6 +39,12 @@ app.get('/', (req: Request, res: Response) => {
     message: 'Welcome to The-Tech-Insight server',
   });
 });
+
+app.all('*', (req, res, next) => {
+  console.log('🔍 Incoming headers:', req.headers);
+  next();
+});
+
 
 // not found hanlder
 app.use(notFoundHandler);

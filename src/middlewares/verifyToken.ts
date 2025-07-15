@@ -9,7 +9,10 @@ const verifyToken = (
   res: Response,
   next: NextFunction,
 ) => {
+
   const authHeader = req.headers.authorization;
+  console.log('Authorization Header:', authHeader)
+  
 
   if (!authHeader) {
     return res.status(StatusCodes.UNAUTHORIZED).json({
