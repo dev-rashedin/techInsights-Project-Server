@@ -8,3 +8,12 @@ export interface DecodedUser extends JwtPayload {
 export interface RequestWithUser extends Request {
   decoded: DecodedUser;
 }
+
+export interface ArticleQueryParams {
+  page?: string;
+  size?: string;
+  status?: string;
+  filter?: string;
+  search?: string;
+  sort?: 'asc' | 'desc';
+}

@@ -1,11 +1,14 @@
+import { FilterQuery } from 'mongoose';
+import { ArticleQueryParams } from '../interface';
+import { IArticle } from '../interface/articles.interface';
 import { Article } from '../model/articles.model';
 
-export const getArticlesService = async (query) => {
-  const page = parseInt(query.page) || 0;
-  const size = parseInt(query.size) || 6;
+export const getArticlesService = async (query: ArticleQueryParams) => {
+  const page = parseInt(query.page || '0');
+  const size = parseInt(query.size || '6');
   const { status, filter, search, sort } = query;
 
-  let matchQuery: Record<string, any> = {};
+const matchQuery: FilterQuery<IArticle> = {};
 
   if (search) {
     matchQuery.title = { $regex: search, $options: 'i' };
@@ -69,5 +72,28 @@ export const getPremiumArticlesService = async () => {
 };
 
 export const getRecentArticlesService = async () => {
-  return await Article.find().sort({ view_count: -1 });
+  const articles = await Article.aggregate([
+    {
+      $addFields: {
+        posted_time_as_date: {
+        $dateFromString: {
+            dateString: '$posted_time',
+            format: '%m/%d/%Y',
+            onError: null,
+          onNull: null,
+        }
+      }
+      }
+    },
+    { $sort: { posted_time_as_date: -1 } }, 
+    { $limit: 6 },
+    {
+      $project: {
+        _id: 1,
+        title: 1,
+        description: 1,
+    }},
+  ]);
+
+  return articles;
 };
