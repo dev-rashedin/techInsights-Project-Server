@@ -7,7 +7,7 @@ export interface IUser extends Document {
   photoURL: string;
   premiumToken: string | null;
   role: 'user' | 'admin';
-  status: 'verified' | 'requested' | 'banned';
+  status: 'verified' | 'requested' | 'remove-admin' | 'banned';
   subscription: 'usual' | 'premium';
 }
 
@@ -24,7 +24,7 @@ const userSchema: Schema<IUser> = new Schema<IUser>({
   },
   status: {
     type: String,
-    enum: ['verified', 'requested', 'banned'],
+    enum: ['verified', 'requested', 'remove-admin', 'banned'],
     default: 'verified',
   },
   subscription: {
