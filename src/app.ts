@@ -12,8 +12,20 @@ import authRouter from './routes/auth.route';
 
 const app: Application = express();
 
+const corsOptions = {
+  origin: [
+    'http://localhost:5173',
+    'http://localhost:5174',
+    'https://tech-insights-d2159.web.app',
+    'https://tech-insights-d2159.firebaseapp.com',
+  ],
+  // credentials: true,
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  optionSuccessStatus: 200,
+};
+
 app.use(express.json());
-app.use(cors());
+app.use(cors(corsOptions));
 
 // routes
 app.use('/jwt', authRouter)

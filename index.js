@@ -19,63 +19,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
   apiVersion: '2024-04-10', // specify the latest Stripe version you're using
 });
 
-import nodemailer from 'nodemailer';
 
-// middleware
-const corsOptions = {
-  origin: [
-    'http://localhost:5173',
-    'http://localhost:5174',
-    'https://tech-insights-d2159.web.app',
-    'https://tech-insights-d2159.firebaseapp.com',
-  ],
-  // credentials: true,
-  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-  optionSuccessStatus: 200,
-};
-
-app.use(cors(corsOptions));
-app.use(express.json());
-
-// send email
-const sendEmail = (emailAddress, emailData) => {
-  const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    host: 'smtp.gmail.com',
-    port: 587,
-    secure: false, // true for port 465, false for other ports
-    auth: {
-      user: process.env.TRANSPORTER_Email,
-      pass: process.env.TRANSPORTER_PASS,
-    },
-  });
-
-  // verify connection configuration
-  transporter.verify(function (error, success) {
-    if (error) {
-      console.log(error);
-    } else {
-      console.log('Server is ready to take our messages');
-    }
-  });
-
-  const mailBody = {
-    from: `"TechInsights" <${process.env.TRANSPORTER_EMAIL}>`, // sender address
-    to: emailAddress, // list of receivers
-    subject: emailData.subject, // Subject line
-    html: emailData.message, // html body
-  };
-
-  const info = transporter.sendMail(mailBody, (error, info) => {
-    if (error) {
-      console.error(error);
-    } else {
-      console.log('Email Sent ' + info.response);
-    }
-  });
-
-  console.log('Message sent: %s', info.messageId);
-};
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.4qgkjzt.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
