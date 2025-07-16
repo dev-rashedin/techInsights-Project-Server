@@ -44,28 +44,6 @@ const matchQuery: FilterQuery<IArticle> = {};
   return { result };
 };
 
-export const getArticleCountService = async (query: any) => {
-  const { filter, search } = query;
-
-  const matchQuery: Record<string, any> = {
-    title: { $regex: search || '', $options: 'i' },
-  };
-
-  if (filter) {
-    matchQuery.publisher = filter;
-  }
-
-  const allArticles = await Article.countDocuments(matchQuery);
-  const approvedArticles = await Article.countDocuments({
-    status: 'approved',
-    ...matchQuery,
-  });
-
-  return {
-    allArticles,
-    approvedArticles,
-  };
-};
 
 export const getPremiumArticlesService = async () => {
   return await Article.find({ isPremium: 'yes' });

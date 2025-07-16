@@ -1,12 +1,12 @@
 import { Request, Response } from 'express';
 import {
   getArticlesService,
-  getArticleCountService,
   getPremiumArticlesService,
   getRecentArticlesService,
+  getRecentArticlesServiceBanner,
 } from '../services/articles.service';
 import { asyncHandler, BadRequestError, StatusCodes } from 'express-error-toolkit';
-import { getRecentArticlesServiceBanner } from './../services/articles.service';
+import { } from './../services/articles.service';
 
 export const getArticles = asyncHandler(async (req: Request, res: Response) => {
   const query = req.query;
@@ -16,10 +16,6 @@ export const getArticles = asyncHandler(async (req: Request, res: Response) => {
   res.status(200).send(result);
 });
 
-export const getArticleCount = asyncHandler(async (req: Request, res: Response) => {
-  const counts = await getArticleCountService(req.query);
-  res.status(200).send(counts);
-});
 
 export const getPremiumArticles = asyncHandler(async (_req: Request, res: Response) => {
   const result = await getPremiumArticlesService();
@@ -37,6 +33,7 @@ export const getRecentArticles = asyncHandler(async (_req: Request, res: Respons
     })
  
 })
+
 export const getRecentArticlesBanner = asyncHandler(async (_req: Request, res: Response) => {
 
     const result = await getRecentArticlesServiceBanner();

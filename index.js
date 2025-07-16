@@ -6,8 +6,6 @@ const app = express();
 
 import { MongoClient, ServerApiVersion, ObjectId } from 'mongodb';
 
-import jwt from 'jsonwebtoken';
-
 const port = 5000;
 
 import cron from 'node-cron';
@@ -190,158 +188,6 @@ async function run() {
       }
     });
 
-    // get all articles
-    //     app.get('/articles', async (req, res) => {
-    //       const page = parseInt(req.query.page) || 0;
-    //       const size = parseInt(req.query.size) || 6;
-    //       const status = req.query.status;
-    //       const filter = req.query.filter;
-    //       const search = req.query.search
-    //       const sort = req.query.sort;
-
-    //       let query = {
-    //         // title: {$regex: search, $options: 'i'}
-    //         title: {$regex: search, $options: 'i'}
-    //       };
-
-    //       if (status) {
-    //         query.status = status;
-    //       }
-    //       if (filter) {
-    //         query.publisher = filter
-    //       }
-
-    //       let options = {};
-
-    //       if (sort) {
-    //         options = { sort: {
-    // posted_time: sort === 'asc' ? 1 : -1 } };
-    //       }
-
-    //      console.log(options)
-
-    //       try {
-    //         const result = await articleCollection
-    //           .find(query, options)
-    //           .skip(page * size)
-    //           .limit(size)
-    //           .toArray();
-
-    //         res.send(result);
-    //       } catch (error) {
-    //         return res.send(error.message);
-    //       }
-    //     });
-
-    app.get('/articles', async (req, res) => {
-      const page = parseInt(req.query.page) || 0;
-      const size = parseInt(req.query.size) || 6;
-      const status = req.query.status;
-      const filter = req.query.filter;
-      const search = req.query.search;
-      const sort = req.query.sort;
-
-      let query = {};
-
-      if (search) {
-        query.title = { $regex: search, $options: 'i' };
-      }
-      if (status) {
-        query.status = status;
-      }
-      if (filter) {
-        query.publisher = filter;
-      }
-
-      try {
-        const result = await articleCollection
-          .aggregate([
-            {
-              $match: query,
-            },
-            {
-              $addFields: {
-                posted_time_as_date: {
-                  $dateFromString: {
-                    dateString: '$posted_time',
-                    format: '%m/%d/%Y',
-                    onError: 'Invalid Date',
-                    onNull: 'No Date',
-                  },
-                },
-              },
-            },
-            {
-              $sort: { posted_time_as_date: sort === 'asc' ? 1 : -1 },
-            },
-            {
-              $skip: page * size,
-            },
-            {
-              $limit: size,
-            },
-          ])
-          .toArray();
-
-        res.status(200).send(result);
-      } catch (error) {
-        console.error('Error fetching articles:', error.message);
-        res.status(500).send(error.message);
-      }
-    });
-
-    // get article count
-    app.get('/articleCount', async (req, res) => {
-      const filter = req.query.filter;
-      const search = req.query.search;
-
-      let query = {
-        // title : {$regex: search, $options: 'i'}
-        title: { $regex: search, $options: 'i' },
-      };
-      if (filter) query.publisher = filter;
-
-      try {
-        const allArticles = await articleCollection.countDocuments(query);
-        const approvedArticles = await articleCollection.countDocuments({
-          status: 'approved',
-          ...query,
-        });
-
-        res.status(200).send({
-          allArticles: allArticles,
-          approvedArticles: approvedArticles,
-        });
-      } catch (error) {
-        return res.status(500).send({ error: error.message });
-      }
-    });
-
-    // get premium article
-    app.get('/premium-articles', async (req, res) => {
-      try {
-        const result = await articleCollection
-          .find({ isPremium: 'yes' })
-          .toArray();
-        res.status(200).send(result);
-      } catch (error) {
-        res.status(500).send({ message: 'Error Fetching Data' });
-      }
-    });
-
-    // get recent articles
-    app.get('/recent-articles', async (req, res) => {
-      try {
-        const result = await articleCollection
-          .find()
-          .sort({ view_count: -1 })
-          .toArray();
-
-        res.send(result);
-      } catch (error) {
-        res.status(500).send(error.message);
-      }
-    });
 
     // get single article by id
     app.get('/articles/:id', async (req, res) => {
@@ -471,6 +317,8 @@ async function run() {
       res.send(result);
     });
 
+
+    // message collection
     // get single  message by id
     app.get('/message/:id', async (req, res) => {
       const id = req.params.id;
