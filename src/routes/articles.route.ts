@@ -1,16 +1,32 @@
 import express from 'express';
-import { getArticles, getArticlesByEmail, getPremiumArticles, getRecentArticles, getRecentArticlesBanner, getSingleArticle, postArticle } from '../controller/articles.controller';
+import {
+  deleteArticle,
+  getArticles,
+  getArticlesByEmail,
+  getPremiumArticles,
+  getRecentArticles,
+  getRecentArticlesBanner,
+  getSingleArticle,
+  incrementViewCount,
+  postArticle,
+  updateArticle,
+  updateArticleStatus,
+} from '../controller/articles.controller';
 import verifyToken from '../middlewares/verifyToken';
 
 const articlesRouter = express.Router();
 
-
-articlesRouter.get('/articles', getArticles)
+articlesRouter.get('/articles', getArticles);
 articlesRouter.get('/premium-articles', getPremiumArticles);
 articlesRouter.get('/recent-articles', getRecentArticles);
 articlesRouter.get('/recent-articles-banner', getRecentArticlesBanner);
 articlesRouter.get('/articles/:id', getSingleArticle);
 articlesRouter.get('/my-articles/:email', verifyToken, getArticlesByEmail);
 articlesRouter.post('/articles', verifyToken, postArticle);
+
+articlesRouter.put('/articles/:id', verifyToken, updateArticleStatus);
+articlesRouter.patch('/articles/:id/increment-view', incrementViewCount);
+articlesRouter.patch('/update/:id', verifyToken, updateArticle);
+articlesRouter.delete('/articles/:id', verifyToken, deleteArticle);
 
 export default articlesRouter;

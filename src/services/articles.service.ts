@@ -131,7 +131,7 @@ export const postArticleService = async (articleData: IArticle) => {
 
 // Admin approval/decline/premium
 export const updateArticleStatusService = async (id: string, update: Partial<{ status: string; isPremium: string }>) => {
-  return await Article.updateOne({ _id: new Types.ObjectId(id) }, { $set: update });
+  return await Article.updateOne({ _id: new Types.ObjectId(id) }, { $set: update }, {new: true});
 };
 
 // Increment view count
