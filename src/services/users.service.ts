@@ -1,5 +1,5 @@
 import { CustomAPIError, NotFoundError } from 'express-error-toolkit';
-import { User, } from '../model/users.model';
+import { User } from '../models/users.model';
 import sendEmail from '../utils/sendEmail';
 import { IUser, IUserWithValidation } from '../interface/users.interface';
 
@@ -27,7 +27,6 @@ export const createOrUpdateUser = async (user: IUserWithValidation) => {
   const existingUser = await User.findOne(query);
 
   console.log('existingUser', existingUser);
-  
 
   if (existingUser) {
     // 1. User status: "requested"
@@ -96,14 +95,12 @@ export const createOrUpdateUser = async (user: IUserWithValidation) => {
     message: `Dear friend, your registration in TechInsights website is successful. Stay connected with us, hope you'll enjoy the journey.`,
   });
 
-  if(!result || result.modifiedCount === 0) {
+  if (!result || result.modifiedCount === 0) {
     throw new CustomAPIError('User creation failed');
   }
 
   return result;
 };
-
-
 
 export const updateUserProfileService = async (
   email: string,

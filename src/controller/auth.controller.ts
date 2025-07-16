@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { BadRequestError } from 'express-error-toolkit';
+import { BadRequestError, StatusCodes } from 'express-error-toolkit';
 import jwt from 'jsonwebtoken';
 import config from '../config/config';
 
@@ -14,5 +14,5 @@ export const generateJwtToken = (req: Request, res: Response) => {
     expiresIn: '7d',
   });
 
-  res.send({ token });
+  res.status(StatusCodes.OK).send({ token });
 };

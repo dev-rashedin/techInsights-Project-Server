@@ -1,7 +1,7 @@
 // src/modules/publishers/publishers.controller.ts
 
 import { Request, Response } from 'express';
-import {asyncHandler, BadRequestError} from 'express-error-toolkit';
+import {asyncHandler, BadRequestError, StatusCodes} from 'express-error-toolkit';
 import {
   getAllPublishersService,
   createPublisherService,
@@ -11,7 +11,7 @@ import {
 export const getAllPublishers = asyncHandler(
   async (_req: Request, res: Response) => {
     const result = await getAllPublishersService();
-    res.send(result);
+    res.status(StatusCodes.OK).send(result);
   },
 );
 
@@ -25,6 +25,6 @@ export const createPublisher = asyncHandler(
     }
 
     const result = await createPublisherService(publisherData);
-    res.send(result);
+    res.status(StatusCodes.CREATED).send(result);
   },
 );

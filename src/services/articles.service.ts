@@ -1,7 +1,7 @@
 import { FilterQuery } from 'mongoose';
 import { ArticleQueryParams } from '../interface';
 import { IArticle } from '../interface/articles.interface';
-import { Article } from '../model/articles.model';
+import { Article } from '../models/articles.model';
 import { Types } from 'mongoose';
 import { CustomAPIError, NotFoundError } from 'express-error-toolkit';
 
@@ -121,9 +121,9 @@ export const getRecentArticlesServiceBanner = async () => {
     },
   ]);
 
-   if (!articles || articles.length === 0) {
-     throw new NotFoundError('No recent articles found');
-   }
+  if (!articles || articles.length === 0) {
+    throw new NotFoundError('No recent articles found');
+  }
 
   return articles;
 };
@@ -158,11 +158,17 @@ export const postArticleService = async (articleData: IArticle) => {
   return result;
 };
 
-
 // Admin approval/decline/premium
-export const updateArticleStatusService = async (id: string, update: Partial<{ status: string; isPremium: string }>) => {
-  const result = await Article.updateOne({ _id: new Types.ObjectId(id) }, { $set: update }, { new: true });
-  
+export const updateArticleStatusService = async (
+  id: string,
+  update: Partial<{ status: string; isPremium: string }>,
+) => {
+  const result = await Article.updateOne(
+    { _id: new Types.ObjectId(id) },
+    { $set: update },
+    { new: true },
+  );
+
   if (result.modifiedCount === 0) {
     throw new NotFoundError('Article not found or no changes made');
   }
@@ -172,18 +178,27 @@ export const updateArticleStatusService = async (id: string, update: Partial<{ s
 
 // Increment view count
 export const incrementViewCountService = async (id: string) => {
-  const result = await Article.updateOne({ _id: new Types.ObjectId(id) }, { $inc: { view_count: 1 } });
+  const result = await Article.updateOne(
+    { _id: new Types.ObjectId(id) },
+    { $inc: { view_count: 1 } },
+  );
 
   if (result.modifiedCount === 0) {
     throw new NotFoundError('Article not found or no changes made');
   }
 
-  return result
+  return result;
 };
 
 // Update article (general)
-export const updateArticleService = async (id: string, updateData: Partial<IArticle>) => {
-  const result = await Article.updateOne({ _id: new Types.ObjectId(id) }, { $set: updateData });
+export const updateArticleService = async (
+  id: string,
+  updateData: Partial<IArticle>,
+) => {
+  const result = await Article.updateOne(
+    { _id: new Types.ObjectId(id) },
+    { $set: updateData },
+  );
 
   if (result.modifiedCount === 0) {
     throw new NotFoundError('Article not found or no changes made');
@@ -198,5 +213,5 @@ export const deleteArticleService = async (id: string) => {
   if (result.deletedCount === 0) {
     throw new NotFoundError('Article not found');
   }
-  return result
+  return result;
 };

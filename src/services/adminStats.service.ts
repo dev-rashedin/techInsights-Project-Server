@@ -1,6 +1,6 @@
-import { User } from '../model/users.model';
-import { Article } from '../model/articles.model';
-import { Publisher } from '../model/publishers.model';
+import { User } from '../models/users.model';
+import { Article } from '../models/articles.model';
+import { Publisher } from '../models/publishers.model';
 
 export const getAdminStatsService = async () => {
   const totalUsers = await User.countDocuments();

@@ -1,7 +1,7 @@
 // src/modules/publishers/publishers.service.ts
 
 import { CustomAPIError, NotFoundError } from 'express-error-toolkit';
-import { IPublisher, Publisher } from '../model/publishers.model';
+import { IPublisher, Publisher } from '../models/publishers.model';
 
 export const getAllPublishersService = async () => {
   const result = await Publisher.find();

@@ -1,10 +1,8 @@
 import { RequestHandler } from 'express';
-import { User } from '../model/users.model'; // adjust path as needed
+import { User } from '../models/users.model'; // adjust path as needed
 import { RequestWithUser } from '../interface';
 
-const verifyAdmin: RequestHandler = async (
- req, res, next
-) => {
+const verifyAdmin: RequestHandler = async (req, res, next) => {
   const decodedUser = (req as RequestWithUser).decoded;
 
   if (!decodedUser?.email) {
