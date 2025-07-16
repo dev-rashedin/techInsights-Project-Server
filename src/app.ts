@@ -11,6 +11,7 @@ import usersRouter from './routes/users.route';
 import authRouter from './routes/auth.route';
 import articlesRouter from './routes/articles.route';
 import publishersRouter from './routes/publishers.route';
+import adminStatsRouter from './routes/adminStats.route';
 
 const app: Application = express();
 
@@ -35,6 +36,7 @@ app.use('/jwt', authRouter);
 app.use('/users', usersRouter);
 app.use('/', articlesRouter);
 app.use('/publishers', publishersRouter);
+app.use('/admin-stats', adminStatsRouter);
 
 // home route
 app.get('/', (req: Request, res: Response) => {

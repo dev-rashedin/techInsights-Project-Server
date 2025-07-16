@@ -1,9 +1,6 @@
-// src/modules/adminStats/adminStats.service.ts
-
 import { User } from '../model/users.model';
 import { Article } from '../model/articles.model';
 import { Publisher } from '../model/publishers.model';
-import { CustomAPIError } from 'express-error-toolkit';
 
 export const getAdminStatsService = async () => {
   const totalUsers = await User.countDocuments();
@@ -18,7 +15,7 @@ export const getAdminStatsService = async () => {
         totalViews: { $sum: '$view_count' },
       },
     },
-  ]).next();
+  ]);
 
   const articleByPublisher = await Article.aggregate([
     {
@@ -52,7 +49,7 @@ export const getAdminStatsService = async () => {
     },
   ]);
 
-  const totalViews = result?.totalViews || 0;
+  const totalViews = result[0]?.totalViews || 0;
 
   return {
     totalUsers,

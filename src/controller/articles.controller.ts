@@ -19,13 +19,13 @@ export const getArticles = asyncHandler(async (req: Request, res: Response) => {
   if (!query) throw new BadRequestError('Query parameters are required');
 
   const { result } = await getArticlesService(query);
-  res.status(200).send(result);
+  res.status(StatusCodes.OK).send(result);
 });
 
 
 export const getPremiumArticles = asyncHandler(async (_req: Request, res: Response) => {
   const result = await getPremiumArticlesService();
-  res.status(200).send(result);
+  res.status(StatusCodes.OK).send(result);
 });
 
 
@@ -58,7 +58,7 @@ export const getSingleArticle = asyncHandler(async (req: Request, res: Response)
   if (!id) throw new BadRequestError('Article ID is required');
 
   const result = await getSingleArticleService(id);
-  res.send(result);
+  res.status(StatusCodes.OK).send(result);
 });
 
 // Get articles by email
@@ -68,7 +68,7 @@ export const getArticlesByEmail = asyncHandler(async (req: Request, res: Respons
   if (!email) throw new BadRequestError('Email is required');
 
   const result = await getArticlesByEmailService(email);
-  res.send(result);
+  res.status(StatusCodes.OK).send(result);
 });
 
 // Post a new article
@@ -78,7 +78,7 @@ export const postArticle = asyncHandler(async (req: Request, res: Response) => {
   if (!articleData) throw new BadRequestError('Article data is required');
 
   const result = await postArticleService(articleData);
-  res.send(result);
+  res.status(StatusCodes.CREATED).send(result);
 });
 
 
@@ -90,7 +90,7 @@ export const updateArticleStatus = asyncHandler(async (req: Request, res: Respon
   if (!id || !update) throw new BadRequestError('Article ID and update data are required');
 
   const result = await updateArticleStatusService(id, update);
-  res.send(result);
+  res.status(StatusCodes.OK).send(result);
 });
 
 // PATCH - increment view count
@@ -100,7 +100,7 @@ export const incrementViewCount = asyncHandler(async (req: Request, res: Respons
   if (!id) throw new BadRequestError('Article ID is required');
 
   const result = await incrementViewCountService(id);
-  res.send(result);
+  res.status(StatusCodes.OK).send(result);
 });
 
 // PATCH - update article
@@ -111,7 +111,7 @@ export const updateArticle = asyncHandler(async (req: Request, res: Response) =>
   if (!id || !updateData) throw new BadRequestError('Article ID and update data are required');
 
   const result = await updateArticleService(id, updateData);
-  res.send(result);
+  res.status(StatusCodes.OK).send(result);
 });
 
 // DELETE - delete article
@@ -121,6 +121,6 @@ export const deleteArticle = asyncHandler(async (req: Request, res: Response) =>
   if (!id) throw new BadRequestError('Article ID is required');
 
   const result = await deleteArticleService(id);
-  res.send(result);
+  res.status(StatusCodes.OK).send(result);
 });
 
