@@ -15,6 +15,7 @@ import adminStatsRouter from './routes/adminStats.route';
 import messagesRouter from './routes/messages.route';
 import votedSectorsRouter from './routes/votedSectors.route';
 import votedLanguagesRouter from './routes/votedLanguages.route';
+import paymentsRouter from './routes/payments.route';
 
 const app: Application = express();
 
@@ -43,6 +44,7 @@ app.use('/admin-stats', adminStatsRouter);
 app.use('/message', messagesRouter);
 app.use('/lang-quiz', votedLanguagesRouter);
 app.use('/demanding-sector', votedSectorsRouter);
+app.use('/', paymentsRouter)
 
 // home route
 app.get('/', (req: Request, res: Response) => {
