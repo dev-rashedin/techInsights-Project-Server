@@ -15,8 +15,6 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
   apiVersion: '2024-04-10', // specify the latest Stripe version you're using
 });
 
-
-
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.4qgkjzt.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
 // const uri = 'mongodb://localhost:27017';
@@ -41,12 +39,6 @@ async function run() {
     // await client.connect();
 
     const userCollection = client.db('techInsightsDB').collection('users');
-    const publisherCollection = client
-      .db('techInsightsDB')
-      .collection('publishers');
-    const articleCollection = client
-      .db('techInsightsDB')
-      .collection('articles');
     const messageCollection = client
       .db('techInsightsDB')
       .collection('messages');
@@ -93,12 +85,6 @@ async function run() {
       const totalArticles = await articleCollection.countDocuments();
 
       const totalPublishers = await publisherCollection.countDocuments();
-
-      // const revenue = payments.reduce((total, payment) => total + payment.price, 0);
-
-      // const articles = await articleCollection.find().toArray()
-
-      // const totalViews = articles.reduce((views, article) => views + article.view_count ,0)
 
       // get article collection
       const result = await articleCollection
@@ -166,28 +152,6 @@ async function run() {
         subscriptionCount,
       });
     });
-    // get all the publisher
-    app.get('/publishers', async (req, res) => {
-      try {
-        const result = await publisherCollection.find().toArray();
-        res.send(result);
-      } catch (error) {
-        return res.send(error);
-      }
-    });
-
-    // create publisher
-    app.post('/publishers', verifyToken, verifyAdmin, async (req, res) => {
-      try {
-        const publisherData = req.body;
-
-        const result = await publisherCollection.insertOne(publisherData);
-        return res.send(result);
-      } catch (error) {
-        return res.send(error);
-      }
-    });
-
 
     // message collection
     // get single  message by id
