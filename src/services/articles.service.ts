@@ -2,6 +2,7 @@ import { FilterQuery } from 'mongoose';
 import { ArticleQueryParams } from '../interface';
 import { IArticle } from '../interface/articles.interface';
 import { Article } from '../model/articles.model';
+import { Types } from 'mongoose';
 
 // fetch all articles from the database
 export const getArticlesService = async (query: ArticleQueryParams) => {
@@ -123,6 +124,6 @@ export const getArticlesByEmailService = async (email: string) => {
 };
 
 // post a new article to the database
-export const postArticleService = async (articleData: any) => {
+export const postArticleService = async (articleData: IArticle) => {
   return await Article.create(articleData);
 };

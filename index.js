@@ -189,47 +189,6 @@ async function run() {
     });
 
 
-    // get single article by id
-    app.get('/articles/:id', async (req, res) => {
-      const id = req.params.id;
-
-      const query = { _id: new ObjectId(id) };
-
-      try {
-        const result = await articleCollection.findOne(query);
-        return res.send(result);
-      } catch (error) {
-        return res.send(error.message);
-      }
-    });
-
-    // get articles by email
-    app.get('/my-articles/:email', verifyToken, async (req, res) => {
-      const email = req.params.email;
-
-      const query = { writers_email: email };
-
-      try {
-        const result = await articleCollection.find(query).toArray();
-        return res.send(result);
-      } catch (error) {
-        return res.send(error.message);
-      }
-    });
-
-    // post a article
-    app.post('/articles', verifyToken, async (req, res) => {
-      try {
-        const articleData = req.body;
-
-        const result = await articleCollection.insertOne(articleData);
-
-        return res.send(result);
-      } catch (error) {
-        return res.send(error);
-      }
-    });
-
     // update a article by admin
     app.put('/articles/:id', verifyToken, async (req, res) => {
       const id = req.params.id;
