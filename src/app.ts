@@ -16,6 +16,7 @@ import messagesRouter from './routes/messages.route';
 import votedSectorsRouter from './routes/votedSectors.route';
 import votedLanguagesRouter from './routes/votedLanguages.route';
 import paymentsRouter from './routes/payments.route';
+import { startSubscriptionDowngradeJob } from './cron/subscription.cron';
 
 const app: Application = express();
 
@@ -34,6 +35,9 @@ const corsOptions = {
 
 app.use(express.json());
 app.use(cors(corsOptions));
+
+
+startSubscriptionDowngradeJob();
 
 // routes
 app.use('/jwt', authRouter);

@@ -115,3 +115,23 @@ export const updateUserProfileService = async (
   }
   return result;
 };
+
+export const downgradeExpiredSubscriptions = async () => {
+  const currentTimeInSeconds = Math.floor(Date.now() / 1000);
+
+  const filter = {
+    subscription: 'premium',
+    premiumToken: { $lt: currentTimeInSeconds },
+  };
+
+  const expiredUsers = await User.find(filter);
+
+  if (expiredUsers.length > 0) {
+    const updateDoc = {
+      $set: { subscription: 'usual', premiumToken: null },
+    };
+
+    await User.updateMany(filter, updateDoc);
+    console.log(`✅ ${expiredUsers.length} users downgraded to usual`);
+  }
+};
