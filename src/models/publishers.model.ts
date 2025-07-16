@@ -1,6 +1,6 @@
-import { model, Schema } from "mongoose";
+import { model, Schema } from 'mongoose';
 
-export interface IPublisher { 
+export interface IPublisher {
   title: string;
   logo: string;
 }
@@ -8,7 +8,6 @@ export interface IPublisher {
 const publisherSchema: Schema = new Schema<IPublisher>({
   title: { type: String, required: true },
   logo: { type: String, required: true },
-})
-
+});
 
 export const Publisher = model<IPublisher>('Publisher', publisherSchema);

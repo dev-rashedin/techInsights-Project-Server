@@ -1,6 +1,5 @@
 import express, { Application, Request, Response } from 'express';
 import {
-  globalErrorHandler,
   notFoundHandler,
   StatusCodes,
 } from 'express-error-toolkit';
@@ -17,8 +16,12 @@ import votedSectorsRouter from './routes/votedSectors.route';
 import votedLanguagesRouter from './routes/votedLanguages.route';
 import paymentsRouter from './routes/payments.route';
 import { startSubscriptionDowngradeJob } from './cron/subscription.cron';
+import { globalErrorHandler } from './middlewares/global-error-handler';
 
 const app: Application = express();
+
+
+
 
 const corsOptions = {
   origin: [
@@ -37,6 +40,7 @@ app.use(express.json());
 app.use(cors(corsOptions));
 
 
+
 startSubscriptionDowngradeJob();
 
 // routes
@@ -48,10 +52,10 @@ app.use('/admin-stats', adminStatsRouter);
 app.use('/message', messagesRouter);
 app.use('/lang-quiz', votedLanguagesRouter);
 app.use('/demanding-sector', votedSectorsRouter);
-app.use('/', paymentsRouter)
+app.use('/', paymentsRouter);
 
 // home route
-app.get('/', (req: Request, res: Response) => {
+app.get('/', (_req: Request, res: Response) => {
   res.status(StatusCodes.OK).json({
     success: true,
     message: 'Welcome to The-Tech-Insight server',

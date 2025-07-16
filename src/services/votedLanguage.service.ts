@@ -10,10 +10,8 @@ export const getLangQuizStatsService = async () => {
     { $project: { _id: 0, language: '$_id', votes: 1 } },
   ]);
 
-  if (!totalVotes || totalVotes === 0) throw new NotFoundError('No votes found');
-  if (!languageVotes || languageVotes.length === 0) {
-    throw new NotFoundError('No language votes found');
-  }
+  if (!totalVotes || totalVotes === 0)
+    throw new NotFoundError('No votes found');
 
   return { totalVotes, languageVotes };
 };
@@ -27,8 +25,9 @@ export const getUserVoteService = async (email: string) => {
 };
 
 export const postLangVoteService = async (voteData: IVotedLanguage) => {
-  const existing = await VotedLanguage.findOne({ voterEmail: voteData.voterEmail });
+  const existing = await VotedLanguage.findOne({
+    voterEmail: voteData.voterEmail,
+  });
   if (existing) throw new ConflictError('User has already voted');
   return await VotedLanguage.create(voteData);
 };
- 

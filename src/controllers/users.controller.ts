@@ -43,7 +43,7 @@ export const addOrEditUser = asyncHandler(
       throw new BadRequestError('user data and email are required');
     }
 
-     const result = await userService.createOrUpdateUser(req.body);
+    const result = await userService.createOrUpdateUser(req.body);
 
     res.status(StatusCodes.CREATED).json({
       success: true,
@@ -54,20 +54,24 @@ export const addOrEditUser = asyncHandler(
 );
 
 // update user profile
-export const updateUserProfile = asyncHandler(async (req: Request, res: Response) => {
-  const email = req.params.email;
-  const updatedUserInfo = req.body;
-  if (!email || !updatedUserInfo) throw new BadRequestError('Email and updated user info are required');
-  
-  console.log(email, updatedUserInfo);
-  
+export const updateUserProfile = asyncHandler(
+  async (req: Request, res: Response) => {
+    const email = req.params.email;
+    const updatedUserInfo = req.body;
+    if (!email || !updatedUserInfo)
+      throw new BadRequestError('Email and updated user info are required');
 
-  const result = await userService.updateUserProfileService(email, updatedUserInfo);
-  
+    console.log(email, updatedUserInfo);
+
+    const result = await userService.updateUserProfileService(
+      email,
+      updatedUserInfo,
+    );
+
     res.status(StatusCodes.OK).json({
-    success: true,
+      success: true,
       message: `User profile with email ${email} updated successfully`,
-    data: result,
-  });
-  
-})
+      data: result,
+    });
+  },
+);

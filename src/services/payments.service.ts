@@ -1,4 +1,3 @@
-
 import config from '../config/config';
 import { Payment, IPayment } from '../models/payments.model';
 import Stripe from 'stripe';

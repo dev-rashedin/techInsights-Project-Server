@@ -7,7 +7,7 @@ export const generateJwtToken = (req: Request, res: Response) => {
   const user = req.body;
 
   if (!user || !user.email) {
-     throw new BadRequestError('User data and email are required');
+    throw new BadRequestError('User data and email are required');
   }
 
   const token = jwt.sign(user, config.accessTokenSecret as string, {

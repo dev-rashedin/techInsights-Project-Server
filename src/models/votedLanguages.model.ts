@@ -11,11 +11,10 @@ const votedLanguageSchema = new Schema<IVotedLanguage>(
     votedLang: { type: String, required: true },
   },
   {
-    collection: 'voted-languages', 
+    collection: 'voted-languages',
   },
 );
 
-export const VotedLanguage = models.VotedLanguage || model<IVotedLanguage>(
-  'VotedLanguage',
-  votedLanguageSchema,
-);
+export const VotedLanguage =
+  models.VotedLanguage ||
+  model<IVotedLanguage>('VotedLanguage', votedLanguageSchema);

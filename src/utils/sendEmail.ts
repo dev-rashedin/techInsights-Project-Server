@@ -1,11 +1,10 @@
 import nodemailer from 'nodemailer';
-import config from '../config/config'
-
+import config from '../config/config';
 
 type EmailData = {
   subject: string;
   message: string;
-}
+};
 
 const sendEmail = (emailAddress: string, emailData: EmailData) => {
   const transporter = nodemailer.createTransport({
@@ -43,8 +42,6 @@ const sendEmail = (emailAddress: string, emailData: EmailData) => {
     }
   });
   console.log('Message sent: %s', info);
-
 };
-
 
 export default sendEmail;

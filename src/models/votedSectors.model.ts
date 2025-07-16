@@ -11,11 +11,9 @@ const votedSectorSchema = new Schema<IVotedSector>(
     votedOption: { type: String, required: true },
   },
   {
-    collection: 'voted-sectors', 
-  }
+    collection: 'voted-sectors',
+  },
 );
 
-export const VotedSector = models.VotedSector || model<IVotedSector>(
-  'VotedLanguage',
-  votedSectorSchema,
-);
+export const VotedSector =
+  models.VotedSector || model<IVotedSector>('VotedSector', votedSectorSchema);

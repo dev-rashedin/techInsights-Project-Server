@@ -22,7 +22,7 @@ articlesRouter.get('/recent-articles', getRecentArticles);
 articlesRouter.get('/recent-articles-banner', getRecentArticlesBanner);
 articlesRouter.get('/articles/:id', getSingleArticle);
 articlesRouter.get('/my-articles/:email', verifyToken, getArticlesByEmail);
-articlesRouter.post('/articles', verifyToken, postArticle);
+articlesRouter.post('/articles',  postArticle);
 
 articlesRouter.put('/articles/:id', verifyToken, updateArticleStatus);
 articlesRouter.patch('/articles/:id/increment-view', incrementViewCount);

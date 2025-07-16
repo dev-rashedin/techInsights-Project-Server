@@ -1,7 +1,11 @@
 // src/modules/publishers/publishers.controller.ts
 
 import { Request, Response } from 'express';
-import {asyncHandler, BadRequestError, StatusCodes} from 'express-error-toolkit';
+import {
+  asyncHandler,
+  BadRequestError,
+  StatusCodes,
+} from 'express-error-toolkit';
 import {
   getAllPublishersService,
   createPublisherService,

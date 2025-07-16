@@ -10,7 +10,6 @@ export interface IUser extends Document {
   subscription: 'usual' | 'premium';
 }
 
-
-export interface IUserWithValidation extends IUser { 
+export interface IUserWithValidation extends IUser {
   validationTime: number;
 }

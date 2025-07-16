@@ -3,7 +3,7 @@ import { ArticleQueryParams } from '../interface';
 import { IArticle } from '../interface/articles.interface';
 import { Article } from '../models/articles.model';
 import { Types } from 'mongoose';
-import { CustomAPIError, NotFoundError } from 'express-error-toolkit';
+import { NotFoundError } from 'express-error-toolkit';
 
 // fetch all articles from the database
 export const getArticlesService = async (query: ArticleQueryParams) => {
@@ -61,6 +61,7 @@ export const getPremiumArticlesService = async () => {
 // fetch recent articles from the database
 export const getRecentArticlesService = async () => {
   const articles = await Article.aggregate([
+  {$match : { status: 'approved' }},
     {
       $addFields: {
         posted_time_as_date: {
@@ -93,7 +94,9 @@ export const getRecentArticlesService = async () => {
 
 // fetch recent articles for banner from the database
 export const getRecentArticlesServiceBanner = async () => {
+ 
   const articles = await Article.aggregate([
+    { $match: { status: 'approved' } },
     {
       $addFields: {
         posted_time_as_date: {
@@ -152,9 +155,8 @@ export const getArticlesByEmailService = async (email: string) => {
 // post a new article to the database
 export const postArticleService = async (articleData: IArticle) => {
   const result = await Article.create(articleData);
-  if (!result) {
-    throw new CustomAPIError('Failed to create article');
-  }
+  console.log('Article created successfully:', result);
+
   return result;
 };
 

@@ -1,5 +1,9 @@
 import { Request, Response } from 'express';
-import { asyncHandler, BadRequestError, StatusCodes } from 'express-error-toolkit';
+import {
+  asyncHandler,
+  BadRequestError,
+  StatusCodes,
+} from 'express-error-toolkit';
 import {
   getLangQuizStatsService,
   getUserVoteService,
@@ -9,6 +13,7 @@ import {
 export const getLangStats = asyncHandler(
   async (_req: Request, res: Response) => {
     const stats = await getLangQuizStatsService();
+
     res.status(StatusCodes.OK).send(stats);
   },
 );
@@ -16,7 +21,7 @@ export const getLangStats = asyncHandler(
 export const getUserVote = asyncHandler(async (req: Request, res: Response) => {
   const email = req.params.email;
 
-  if(!email) throw new BadRequestError('Email is required');
+  if (!email) throw new BadRequestError('Email is required');
 
   const result = await getUserVoteService(email);
   res.status(StatusCodes.OK).send(result);
