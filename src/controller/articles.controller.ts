@@ -1,12 +1,16 @@
 import { Request, Response } from 'express';
 import {
+  deleteArticleService,
   getArticlesByEmailService,
   getArticlesService,
   getPremiumArticlesService,
   getRecentArticlesService,
   getRecentArticlesServiceBanner,
   getSingleArticleService,
+  incrementViewCountService,
   postArticleService,
+  updateArticleService,
+  updateArticleStatusService,
 } from '../services/articles.service';
 import { asyncHandler, BadRequestError, StatusCodes } from 'express-error-toolkit';
 
@@ -74,6 +78,49 @@ export const postArticle = asyncHandler(async (req: Request, res: Response) => {
   if (!articleData) throw new BadRequestError('Article data is required');
 
   const result = await postArticleService(articleData);
+  res.send(result);
+});
+
+
+// PUT - Admin approve/decline/premium
+export const updateArticleStatus = asyncHandler(async (req: Request, res: Response) => {
+  const id = req.params.id;
+  const update = req.body;
+
+  if (!id || !update) throw new BadRequestError('Article ID and update data are required');
+
+  const result = await updateArticleStatusService(id, update);
+  res.send(result);
+});
+
+// PATCH - increment view count
+export const incrementViewCount = asyncHandler(async (req: Request, res: Response) => {
+  const id = req.params.id;
+
+  if (!id) throw new BadRequestError('Article ID is required');
+
+  const result = await incrementViewCountService(id);
+  res.send(result);
+});
+
+// PATCH - update article
+export const updateArticle = asyncHandler(async (req: Request, res: Response) => {
+  const id = req.params.id;
+  const updateData = req.body;
+
+  if (!id || !updateData) throw new BadRequestError('Article ID and update data are required');
+
+  const result = await updateArticleService(id, updateData);
+  res.send(result);
+});
+
+// DELETE - delete article
+export const deleteArticle = asyncHandler(async (req: Request, res: Response) => {
+  const id = req.params.id;
+
+  if (!id) throw new BadRequestError('Article ID is required');
+
+  const result = await deleteArticleService(id);
   res.send(result);
 });
 

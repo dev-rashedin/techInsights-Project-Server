@@ -127,3 +127,24 @@ export const getArticlesByEmailService = async (email: string) => {
 export const postArticleService = async (articleData: IArticle) => {
   return await Article.create(articleData);
 };
+
+
+// Admin approval/decline/premium
+export const updateArticleStatusService = async (id: string, update: Partial<{ status: string; isPremium: string }>) => {
+  return await Article.updateOne({ _id: new Types.ObjectId(id) }, { $set: update });
+};
+
+// Increment view count
+export const incrementViewCountService = async (id: string) => {
+  return await Article.updateOne({ _id: new Types.ObjectId(id) }, { $inc: { view_count: 1 } });
+};
+
+// Update article (general)
+export const updateArticleService = async (id: string, updateData: Partial<IArticle>) => {
+  return await Article.updateOne({ _id: new Types.ObjectId(id) }, { $set: updateData });
+};
+
+// Delete article
+export const deleteArticleService = async (id: string) => {
+  return await Article.deleteOne({ _id: new Types.ObjectId(id) });
+};
