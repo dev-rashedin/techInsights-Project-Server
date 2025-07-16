@@ -3,6 +3,7 @@ import { ArticleQueryParams } from '../interface';
 import { IArticle } from '../interface/articles.interface';
 import { Article } from '../model/articles.model';
 import { Types } from 'mongoose';
+import { CustomAPIError, NotFoundError } from 'express-error-toolkit';
 
 // fetch all articles from the database
 export const getArticlesService = async (query: ArticleQueryParams) => {
@@ -48,7 +49,13 @@ export const getArticlesService = async (query: ArticleQueryParams) => {
 
 // fetch premium articles from the database
 export const getPremiumArticlesService = async () => {
-  return await Article.find({ isPremium: 'yes' });
+  const result = await Article.find({ isPremium: 'yes' });
+
+  if (!result || result.length === 0) {
+    throw new NotFoundError('No premium articles found');
+  }
+
+  return result;
 };
 
 // fetch recent articles from the database
@@ -76,6 +83,10 @@ export const getRecentArticlesService = async () => {
       },
     },
   ]);
+
+  if (!articles || articles.length === 0) {
+    throw new NotFoundError('No recent articles found');
+  }
 
   return articles;
 };
@@ -110,41 +121,82 @@ export const getRecentArticlesServiceBanner = async () => {
     },
   ]);
 
+   if (!articles || articles.length === 0) {
+     throw new NotFoundError('No recent articles found');
+   }
+
   return articles;
 };
 
 // fetch single article by ID from the database
 export const getSingleArticleService = async (id: string) => {
-  return await Article.findById(new Types.ObjectId(id));
+  const result = await Article.findById(new Types.ObjectId(id));
+
+  if (!result) {
+    throw new NotFoundError('Article not found');
+  }
+  return result;
 };
 
 // fetch articles by email from the database
 export const getArticlesByEmailService = async (email: string) => {
-  return await Article.find({ writers_email: email });
+  const result = await Article.find({ writers_email: email });
+
+  if (!result || result.length === 0) {
+    throw new NotFoundError(`No articles found for email: ${email}`);
+  }
+
+  return result;
 };
 
 // post a new article to the database
 export const postArticleService = async (articleData: IArticle) => {
-  return await Article.create(articleData);
+  const result = await Article.create(articleData);
+  if (!result) {
+    throw new CustomAPIError('Failed to create article');
+  }
+  return result;
 };
 
 
 // Admin approval/decline/premium
 export const updateArticleStatusService = async (id: string, update: Partial<{ status: string; isPremium: string }>) => {
-  return await Article.updateOne({ _id: new Types.ObjectId(id) }, { $set: update }, {new: true});
+  const result = await Article.updateOne({ _id: new Types.ObjectId(id) }, { $set: update }, { new: true });
+  
+  if (result.modifiedCount === 0) {
+    throw new NotFoundError('Article not found or no changes made');
+  }
+
+  return result;
 };
 
 // Increment view count
 export const incrementViewCountService = async (id: string) => {
-  return await Article.updateOne({ _id: new Types.ObjectId(id) }, { $inc: { view_count: 1 } });
+  const result = await Article.updateOne({ _id: new Types.ObjectId(id) }, { $inc: { view_count: 1 } });
+
+  if (result.modifiedCount === 0) {
+    throw new NotFoundError('Article not found or no changes made');
+  }
+
+  return result
 };
 
 // Update article (general)
 export const updateArticleService = async (id: string, updateData: Partial<IArticle>) => {
-  return await Article.updateOne({ _id: new Types.ObjectId(id) }, { $set: updateData });
+  const result = await Article.updateOne({ _id: new Types.ObjectId(id) }, { $set: updateData });
+
+  if (result.modifiedCount === 0) {
+    throw new NotFoundError('Article not found or no changes made');
+  }
+
+  return result;
 };
 
 // Delete article
 export const deleteArticleService = async (id: string) => {
-  return await Article.deleteOne({ _id: new Types.ObjectId(id) });
+  const result = await Article.deleteOne({ _id: new Types.ObjectId(id) });
+  if (result.deletedCount === 0) {
+    throw new NotFoundError('Article not found');
+  }
+  return result
 };

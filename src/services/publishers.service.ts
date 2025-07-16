@@ -1,11 +1,20 @@
 // src/modules/publishers/publishers.service.ts
 
+import { CustomAPIError, NotFoundError } from 'express-error-toolkit';
 import { IPublisher, Publisher } from '../model/publishers.model';
 
 export const getAllPublishersService = async () => {
-  return await Publisher.find();
+  const result = await Publisher.find();
+  if (!result) {
+    throw new NotFoundError('No publishers found');
+  }
+  return result;
 };
 
 export const createPublisherService = async (publisherData: IPublisher) => {
-  return await Publisher.create(publisherData);
+  const result = await Publisher.create(publisherData);
+  if (!result) {
+    throw new CustomAPIError('Failed to create publisher');
+  }
+  return result;
 };

@@ -7,9 +7,10 @@ import {
 
 import cors from 'cors';
 
-import userRouter from './routes/users.route';
+import usersRouter from './routes/users.route';
 import authRouter from './routes/auth.route';
 import articlesRouter from './routes/articles.route';
+import publishersRouter from './routes/publishers.route';
 
 const app: Application = express();
 
@@ -30,9 +31,10 @@ app.use(express.json());
 app.use(cors(corsOptions));
 
 // routes
-app.use('/jwt', authRouter)
-app.use('/users', userRouter);
-app.use('/', articlesRouter)
+app.use('/jwt', authRouter);
+app.use('/users', usersRouter);
+app.use('/', articlesRouter);
+app.use('/publishers', publishersRouter);
 
 // home route
 app.get('/', (req: Request, res: Response) => {
@@ -46,7 +48,6 @@ app.all('*', (req, res, next) => {
   console.log('🔍 Incoming headers:', req.headers);
   next();
 });
-
 
 // not found hanlder
 app.use(notFoundHandler);
