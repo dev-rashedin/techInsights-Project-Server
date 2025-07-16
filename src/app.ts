@@ -58,11 +58,6 @@ app.get('/', (req: Request, res: Response) => {
   });
 });
 
-app.all('*', (req, res, next) => {
-  console.log('🔍 Incoming headers:', req.headers);
-  next();
-});
-
 // not found hanlder
 app.use(notFoundHandler);
 
