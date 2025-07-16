@@ -13,7 +13,8 @@ import articlesRouter from './routes/articles.route';
 import publishersRouter from './routes/publishers.route';
 import adminStatsRouter from './routes/adminStats.route';
 import messagesRouter from './routes/messages.route';
-import votedLanguageRouter from './routes/votedLanguage.route';
+import votedSectorsRouter from './routes/votedSectors.route';
+import votedLanguagesRouter from './routes/votedLanguages.route';
 
 const app: Application = express();
 
@@ -40,7 +41,8 @@ app.use('/', articlesRouter);
 app.use('/publishers', publishersRouter);
 app.use('/admin-stats', adminStatsRouter);
 app.use('/message', messagesRouter);
-app.use('/lang-quiz', votedLanguageRouter);
+app.use('/lang-quiz', votedLanguagesRouter);
+app.use('/demanding-sector', votedSectorsRouter);
 
 // home route
 app.get('/', (req: Request, res: Response) => {

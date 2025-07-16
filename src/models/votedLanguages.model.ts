@@ -1,4 +1,4 @@
-import { Schema, model } from 'mongoose';
+import { Schema, model, models } from 'mongoose';
 
 export interface IVotedLanguage {
   voterEmail: string;
@@ -15,7 +15,7 @@ const votedLanguageSchema = new Schema<IVotedLanguage>(
   },
 );
 
-export const VotedLanguage = model<IVotedLanguage>(
+export const VotedLanguage = models.VotedLanguage || model<IVotedLanguage>(
   'VotedLanguage',
   votedLanguageSchema,
 );
