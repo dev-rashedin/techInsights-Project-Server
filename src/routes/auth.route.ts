@@ -1,5 +1,5 @@
 import express from 'express';
-import { generateJwtToken } from '../controller/auth.controller';
+import { generateJwtToken } from '../controllers/auth.controller';
 
 const authRouter = express.Router();
 

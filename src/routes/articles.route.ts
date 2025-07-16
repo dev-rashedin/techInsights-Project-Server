@@ -11,7 +11,7 @@ import {
   postArticle,
   updateArticle,
   updateArticleStatus,
-} from '../controller/articles.controller';
+} from '../controllers/articles.controller';
 import verifyToken from '../middlewares/verifyToken';
 
 const articlesRouter = express.Router();

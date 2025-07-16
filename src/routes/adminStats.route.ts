@@ -1,9 +1,9 @@
 // src/modules/adminStats/adminStats.route.ts
 
 import { Router } from 'express';
-import { getAdminStats } from '../controller/adminStats.controller';
-import verifyToken  from '../middlewares/verifyToken';
-import verifyAdmin  from '../middlewares/verifyAdmin';
+import { getAdminStats } from '../controllers/adminStats.controller';
+import verifyToken from '../middlewares/verifyToken';
+import verifyAdmin from '../middlewares/verifyAdmin';
 
 const adminStatsRouter = Router();
 

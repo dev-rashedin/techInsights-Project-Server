@@ -12,6 +12,7 @@ import authRouter from './routes/auth.route';
 import articlesRouter from './routes/articles.route';
 import publishersRouter from './routes/publishers.route';
 import adminStatsRouter from './routes/adminStats.route';
+import messagesRouter from './routes/messages.route';
 
 const app: Application = express();
 
@@ -37,6 +38,7 @@ app.use('/users', usersRouter);
 app.use('/', articlesRouter);
 app.use('/publishers', publishersRouter);
 app.use('/admin-stats', adminStatsRouter);
+app.use('/message', messagesRouter);
 
 // home route
 app.get('/', (req: Request, res: Response) => {

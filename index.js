@@ -78,42 +78,7 @@ async function run() {
       }
     });
 
-
-    // message collection
-    // get single  message by id
-    app.get('/message/:id', async (req, res) => {
-      const id = req.params.id;
-      const query = { articleId: id };
-
-      try {
-        const result = await messageCollection.findOne(query);
-        return res.send(result);
-      } catch (error) {
-        return res.send(error.message);
-      }
-    });
-
-    // save a decline message
-    app.post('/message/:id', async (req, res) => {
-      const id = req.params.id;
-      console.log(id);
-
-      const message = req.body;
-
-      const query = { _id: new ObjectId(id) };
-
-      const existingMessage = await messageCollection.findOne(query);
-
-      if (!existingMessage) {
-        try {
-          const result = await messageCollection.insertOne(message);
-          res.send(result);
-        } catch (error) {
-          res.send(error.message);
-        }
-      }
-    });
-
+    
     // get vote count
     app.get('/lang-quiz', async (req, res) => {
       const totalVotes = await langQuizCollection.countDocuments();

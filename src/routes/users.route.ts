@@ -3,8 +3,8 @@ import {
   addOrEditUser,
   getAllUsers,
   updateUserProfile,
-} from '../controller/users.controller';
-import { getUserByEmail } from '../controller/users.controller';
+} from '../controllers/users.controller';
+import { getUserByEmail } from '../controllers/users.controller';
 import verifyToken from '../middlewares/verifyToken';
 import verifyAdmin from '../middlewares/verifyAdmin';
 
