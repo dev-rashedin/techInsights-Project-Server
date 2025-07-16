@@ -1,12 +1,14 @@
 import { Request, Response } from 'express';
 import {
+  getArticlesByEmailService,
   getArticlesService,
   getPremiumArticlesService,
   getRecentArticlesService,
   getRecentArticlesServiceBanner,
+  getSingleArticleService,
+  postArticleService,
 } from '../services/articles.service';
 import { asyncHandler, BadRequestError, StatusCodes } from 'express-error-toolkit';
-import { } from './../services/articles.service';
 
 export const getArticles = asyncHandler(async (req: Request, res: Response) => {
   const query = req.query;
@@ -44,3 +46,34 @@ export const getRecentArticlesBanner = asyncHandler(async (_req: Request, res: R
   });
  
 })
+
+// Get single article by ID
+export const getSingleArticle = asyncHandler(async (req: Request, res: Response) => {
+  const id = req.params.id;
+
+  if (!id) throw new BadRequestError('Article ID is required');
+
+  const result = await getSingleArticleService(id);
+  res.send(result);
+});
+
+// Get articles by email
+export const getArticlesByEmail = asyncHandler(async (req: Request, res: Response) => {
+  const email = req.params.email;
+
+  if (!email) throw new BadRequestError('Email is required');
+
+  const result = await getArticlesByEmailService(email);
+  res.send(result);
+});
+
+// Post a new article
+export const postArticle = asyncHandler(async (req: Request, res: Response) => {
+  const articleData = req.body;
+
+  if (!articleData) throw new BadRequestError('Article data is required');
+
+  const result = await postArticleService(articleData);
+  res.send(result);
+});
+
