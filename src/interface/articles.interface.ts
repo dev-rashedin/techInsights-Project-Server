@@ -28,3 +28,8 @@ export interface IArticle extends Document {
   posted_time: string;
   writers_email: string;
 }
+
+export interface ArticleQuery {
+  filter?: string;
+  search?: string;
+}

@@ -1,6 +1,7 @@
 import express from 'express';
 import {
   deleteArticle,
+  getArticleCount,
   getArticles,
   getArticlesByEmail,
   getPremiumArticles,
@@ -19,6 +20,7 @@ const articlesRouter = express.Router();
 articlesRouter.get('/articles', getArticles);
 articlesRouter.get('/premium-articles', getPremiumArticles);
 articlesRouter.get('/recent-articles', getRecentArticles);
+articlesRouter.get('/article-count', getArticleCount);
 articlesRouter.get('/recent-articles-banner', getRecentArticlesBanner);
 articlesRouter.get('/articles/:id', getSingleArticle);
 articlesRouter.get('/my-articles/:email', verifyToken, getArticlesByEmail);

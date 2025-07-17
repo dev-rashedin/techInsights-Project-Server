@@ -1,6 +1,6 @@
 import { FilterQuery } from 'mongoose';
 import { ArticleQueryParams } from '../interface';
-import { IArticle } from '../interface/articles.interface';
+import { ArticleQuery, IArticle } from '../interface/articles.interface';
 import { Article } from '../models/articles.model';
 import { Types } from 'mongoose';
 import { NotFoundError } from 'express-error-toolkit';
@@ -56,6 +56,29 @@ export const getPremiumArticlesService = async () => {
   }
 
   return result;
+};
+
+export const getArticleCountService = async (query: ArticleQuery) => {
+  const { filter, search } = query;
+
+  const matchQuery: Record<string, unknown> = {
+    title: { $regex: search || '', $options: 'i' },
+  };
+
+  if (filter) {
+    matchQuery.publisher = filter;
+  }
+
+  const allArticles = await Article.countDocuments(matchQuery);
+  const approvedArticles = await Article.countDocuments({
+    status: 'approved',
+    ...matchQuery,
+  });
+
+  return {
+    allArticles,
+    approvedArticles,
+  };
 };
 
 // fetch recent articles from the database

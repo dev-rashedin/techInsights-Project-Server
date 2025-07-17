@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import {
   deleteArticleService,
+  getArticleCountService,
   getArticlesByEmailService,
   getArticlesService,
   getPremiumArticlesService,
@@ -30,6 +31,13 @@ export const getPremiumArticles = asyncHandler(
   async (_req: Request, res: Response) => {
     const result = await getPremiumArticlesService();
     res.status(StatusCodes.OK).send(result);
+  },
+);
+
+export const getArticleCount = asyncHandler(
+  async (req: Request, res: Response) => {
+    const counts = await getArticleCountService(req.query);
+    res.status(StatusCodes.OK).send(counts);
   },
 );
 
