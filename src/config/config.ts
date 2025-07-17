@@ -10,6 +10,7 @@ const config = {
   stripeSecretKey: process.env.STRIPE_SECRET_KEY,
   transporterEmail: process.env.TRANSPORTER_EMAIL,
   transporterPass: process.env.TRANSPORTER_PASS,
+  nodeEnv: process.env.NODE_ENV || 'development',
 };
 
 export default config;

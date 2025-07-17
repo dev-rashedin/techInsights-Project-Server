@@ -119,20 +119,8 @@ export const getRecentArticlesService = async () => {
 export const getRecentArticlesServiceBanner = async () => {
  
   const articles = await Article.aggregate([
-    { $match: { status: 'approved' } },
-    {
-      $addFields: {
-        posted_time_as_date: {
-          $dateFromString: {
-            dateString: '$posted_time',
-            format: '%m/%d/%Y',
-            onError: null,
-            onNull: null,
-          },
-        },
-      },
-    },
-    { $sort: { posted_time_as_date: -1 } },
+   
+    { $sort: { view_count: -1 } },
     { $limit: 6 },
     {
       $project: {
@@ -143,6 +131,7 @@ export const getRecentArticlesServiceBanner = async () => {
         tags: 1,
         posted_time: 1,
         publisher: 1,
+        view_count: 1
       },
     },
   ]);
