@@ -24,8 +24,8 @@ export const createPublisher = asyncHandler(
   async (req: Request, res: Response) => {
     const publisherData = req.body;
 
-    if (!publisherData || !publisherData.name) {
-      throw new BadRequestError('Publisher data and name are required');
+    if (!publisherData) {
+      throw new BadRequestError('Publisher data is required');
     }
 
     const result = await createPublisherService(publisherData);

@@ -1,7 +1,8 @@
 import express, { Application, Request, Response } from 'express';
 import {
-  notFoundHandler,
   StatusCodes,
+  notFoundHandler,
+  globalErrorHandler,
 } from 'express-error-toolkit';
 
 import cors from 'cors';
@@ -16,7 +17,7 @@ import votedSectorsRouter from './routes/votedSectors.route';
 import votedLanguagesRouter from './routes/votedLanguages.route';
 import paymentsRouter from './routes/payments.route';
 import { startSubscriptionDowngradeJob } from './cron/subscription.cron';
-import { globalErrorHandler } from './middlewares/global-error-handler';
+
 
 const app: Application = express();
 
