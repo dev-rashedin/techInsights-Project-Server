@@ -117,7 +117,6 @@ export const getRecentArticlesService = async () => {
 
 // fetch recent articles for banner from the database
 export const getRecentArticlesServiceBanner = async () => {
- 
   const articles = await Article.aggregate([
    
     { $sort: { view_count: -1 } },
